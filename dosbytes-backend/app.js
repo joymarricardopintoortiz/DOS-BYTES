@@ -17,6 +17,7 @@ const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
+// Cabeceras de seguridad. En producción se activa la política CSP.
 app.use(
   helmet({
     contentSecurityPolicy: env.isProd
@@ -38,19 +39,27 @@ app.use(
   })
 );
 
+// Orígenes que pueden llamar a la API (CLIENT_URL y APP_URL del entorno).
 const allowedOrigins = new Set([env.clientUrl, env.appUrl].filter(Boolean));
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      // Sin origen: peticiones del mismo sitio, curl o apps móviles.
-      if (!origin || allowedOrigins.has(origin)) return callback(null, true);
-      return callback(ApiError.forbidden('Origen no permitido por CORS'));
-    },
-    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+// Opciones de CORS: solo se aceptan los orígenes permitidos.
+const corsOptions = {
+  origin(origin, callback) {
+    // Sin origen: peticiones del mismo sitio, curl o apps móviles.
+    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    return callback(ApiError.forbidden('Origen no permitido por CORS'));
+  },
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+// CORRECCIÓN (pantalla en blanco en Render):
+// Antes era app.use(cors({...})) y se aplicaba a TODO el sitio, incluidos los
+// archivos /assets (.js y .css del frontend). El navegador manda la cabecera
+// Origin en esos archivos y, si no coincidía con CLIENT_URL/APP_URL, el
+// servidor respondía 403 (JSON) y la página quedaba en blanco.
+// Ahora el CORS solo se aplica a la API; los archivos estáticos no se bloquean.
+app.use('/api', cors(corsOptions));
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
@@ -69,6 +78,7 @@ if (!env.isProd) {
 // Imágenes locales cuando no hay Cloudinary configurado (solo desarrollo).
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Rutas de la API (con límite global de peticiones).
 app.use('/api', globalLimiter, apiRoutes);
 
 // 404 en formato JSON para rutas de API desconocidas.
@@ -78,7 +88,10 @@ app.use('/api', notFound);
 const dist = path.join(__dirname, '..', 'dosbytes-frontend', 'dist');
 const indexFile = path.join(dist, 'index.html');
 if (fs.existsSync(indexFile)) {
+  // Archivos estáticos del frontend (/assets, favicon, etc.).
   app.use(express.static(dist));
+
+  // Cualquier otra ruta devuelve index.html para que Vue Router la resuelva.
   app.get('/{*splat}', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
     return res.sendFile(indexFile);
