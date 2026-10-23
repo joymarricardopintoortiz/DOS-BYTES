@@ -14,8 +14,10 @@ API de la plataforma de **DOS BYTES**: servicio técnico, cibercafé, papelería
 ```bash
 cd dosbytes-backend
 npm install
-cp .env.example .env   # en Windows: copy .env.example .env
+copy .env.example .env   # en Windows (CMD)
 ```
+
+Si usas Mac o Linux, duplica el archivo `.env.example` desde tu explorador de archivos y renombra la copia a `.env`.
 
 Completa `.env` con `MONGO_URI`, `JWT_SECRET`, los dos administradores y, si ya las tienes, las claves de correo y Cloudinary.
 

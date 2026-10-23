@@ -67,8 +67,12 @@ Requisitos: Node.js 18 o superior y una base de datos en MongoDB Atlas.
 ```bash
 cd dosbytes-backend
 npm install
-cp .env.example .env      # en Windows: copy .env.example .env
-# completa MONGO_URI, JWT_SECRET y los datos de los administradores
+copy .env.example .env    # en Windows (CMD)
+```
+Si usas Mac o Linux, duplica el archivo `.env.example` desde tu explorador de archivos y renombra la copia a `.env`.
+
+Luego completa `MONGO_URI`, `JWT_SECRET` y los datos de los administradores:
+```bash
 npm run seed              # crea administradores, categorías, tarifas y configuración
 npm run dev               # http://localhost:3000
 ```
