@@ -1,3 +1,14 @@
+/* ==========================================================================
+   DOS BYTES · style.css
+   Estilos globales del sitio (Vue 3 + Quasar).
+
+   Cambios de esta versión:
+   1. Pantalla completa: el contenido ya no se limita a 1200px (efecto 4:3);
+      ahora ocupa todo el ancho y los márgenes se adaptan al tamaño de pantalla.
+   2. Media queries por rangos: móvil, tablet, laptop, Full HD y pantallas grandes.
+   3. Footer normal: ya no queda fijo abajo; aparece al final de la página.
+   ========================================================================== */
+
 :root {
   --db-primary: #0b1f3a;
   --db-primary-600: #12325a;
@@ -16,20 +27,33 @@
   --db-radius: 14px;
   --db-shadow: 0 8px 28px rgba(15, 31, 58, 0.08);
   --db-shadow-soft: 0 2px 10px rgba(15, 31, 58, 0.06);
+
+  /* Pantalla completa: margen lateral y ancho máximo del contenido.
+     --db-gutter cambia con las media queries del final del archivo. */
+  --db-gutter: 14px;
+  --db-container-max: 2400px;
 }
 
 * {
   box-sizing: border-box;
 }
 
+/* El sitio ocupa el 100% de la pantalla */
 html,
 body,
 #app {
+  width: 100%;
   min-height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%; /* evita que el móvil agrande el texto solo */
 }
 
 body {
   margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh; /* alto real en móviles (descuenta la barra del navegador) */
   background: var(--db-bg);
   color: var(--db-text);
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -45,9 +69,26 @@ img {
   max-width: 100%;
 }
 
+/* Contenedor principal. ANTES: máximo 1200px (se veía como pantalla 4:3).
+   AHORA: usa todo el ancho menos un margen lateral (--db-gutter) que se
+   adapta a cada pantalla. En pantallas gigantes se centra a 2400px. */
 .container {
-  width: min(1200px, calc(100% - 40px));
+  width: min(var(--db-container-max), calc(100% - (var(--db-gutter) * 2)));
   margin-inline: auto;
+}
+
+/* Estructura de la página: una columna de alto completo.
+   El contenido crece y empuja el footer hacia abajo, pero el footer
+   NO es fijo: sube y baja con el scroll como cualquier otro bloque. */
+.q-layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.q-page-container {
+  flex: 1 0 auto;
+  /* Quasar reserva aquí el alto del footer fijo; ya no hace falta */
+  padding-bottom: 0 !important;
 }
 
 .page-shell {
@@ -170,7 +211,9 @@ img {
   width: 100%;
 }
 
-/* Header */
+/* ==========================================================================
+   ENCABEZADO
+   ========================================================================== */
 .site-header {
   background: var(--db-surface);
   border-bottom: 1px solid var(--db-line);
@@ -306,7 +349,9 @@ img {
   text-transform: uppercase;
 }
 
-/* Search autocomplete */
+/* ==========================================================================
+   BUSCADOR CON AUTOCOMPLETADO
+   ========================================================================== */
 .search-autocomplete {
   position: relative;
   width: 100%;
@@ -403,7 +448,9 @@ img {
   font-size: 0.86rem;
 }
 
-/* Hero */
+/* ==========================================================================
+   PORTADA (HERO) Y BANNERS
+   ========================================================================== */
 .hero {
   position: relative;
   overflow: hidden;
@@ -529,7 +576,9 @@ img {
   font-size: 0.86rem;
 }
 
-/* Categories */
+/* ==========================================================================
+   CATEGORÍAS
+   ========================================================================== */
 .category-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
@@ -569,7 +618,10 @@ img {
   font-size: 1.35rem;
 }
 
-/* Product grid and cards */
+/* ==========================================================================
+   CUADRÍCULA Y TARJETAS DE PRODUCTO
+   (las columnas se ajustan solas con auto-fill)
+   ========================================================================== */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -651,6 +703,7 @@ img {
   line-height: 1.25;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .product-rating {
@@ -709,7 +762,7 @@ img {
   color: var(--db-danger);
 }
 
-/* Stars */
+/* Estrellas de calificación */
 .stars {
   display: inline-flex;
   gap: 1px;
@@ -722,7 +775,9 @@ img {
   font-size: 1em;
 }
 
-/* Page headings and filters */
+/* ==========================================================================
+   TÍTULOS DE PÁGINA Y FILTROS
+   ========================================================================== */
 .page-head {
   display: flex;
   align-items: flex-end;
@@ -794,7 +849,9 @@ img {
   margin-bottom: 14px;
 }
 
-/* Product detail */
+/* ==========================================================================
+   DETALLE DE PRODUCTO
+   ========================================================================== */
 .detail-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
@@ -929,7 +986,9 @@ img {
   white-space: pre-line;
 }
 
-/* Reviews and questions */
+/* ==========================================================================
+   OPINIONES Y PREGUNTAS
+   ========================================================================== */
 .rating-summary {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -1008,7 +1067,9 @@ img {
   background: #f2f9fd;
 }
 
-/* Cart */
+/* ==========================================================================
+   CARRITO
+   ========================================================================== */
 .cart-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
@@ -1074,7 +1135,7 @@ img {
   font-weight: 900;
 }
 
-/* Timeline */
+/* Línea de tiempo (estado de la reparación) */
 .timeline {
   position: relative;
   margin: 0;
@@ -1141,7 +1202,9 @@ img {
   font-size: 0.84rem;
 }
 
-/* Account and panel shells */
+/* ==========================================================================
+   MI CUENTA Y PANEL DE ADMINISTRACIÓN
+   ========================================================================== */
 .account-grid {
   display: grid;
   grid-template-columns: 244px minmax(0, 1fr);
@@ -1360,11 +1423,14 @@ img {
   align-items: center;
 }
 
-/* Auth */
+/* ==========================================================================
+   INGRESAR / REGISTRO
+   ========================================================================== */
 .auth-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .auth-aside {
@@ -1457,11 +1523,26 @@ img {
   text-decoration: underline;
 }
 
-/* Footer */
+/* ==========================================================================
+   FOOTER (pie de página, ya no es fijo)
+   ========================================================================== */
 .site-footer {
-  margin-top: auto;
+  margin-top: auto; /* si el contenido es corto, el footer queda al final de la pantalla */
   background: #08182e;
   color: #c2d1e2;
+}
+
+/* El <q-footer> de Quasar es fijo por defecto (view="... fFf").
+   Aquí se anula esa posición para que el footer fluya con la página. */
+.q-layout > .q-footer.site-footer {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: auto !important;
+  width: 100%;
+  transform: none !important;
 }
 
 .footer-grid {
@@ -1541,7 +1622,9 @@ img {
   font-size: 0.76rem;
 }
 
-/* Misc */
+/* ==========================================================================
+   VARIOS
+   ========================================================================== */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -1600,7 +1683,7 @@ img {
   background: currentColor;
 }
 
-/* Quasar refinements */
+/* Ajustes sobre los componentes de Quasar */
 .q-btn {
   text-transform: none;
   font-weight: 600;
@@ -1635,7 +1718,11 @@ img {
   border-radius: 10px;
 }
 
-/* Responsive */
+/* ==========================================================================
+   MEDIA QUERIES (de pantalla grande a pequeña)
+   Se aplican cuando la pantalla es MENOR O IGUAL al ancho indicado.
+   ========================================================================== */
+/* Laptops pequeñas (hasta 1080px) */
 @media (max-width: 1080px) {
   .footer-grid {
     grid-template-columns: 1.4fr 0.8fr 0.9fr;
@@ -1650,6 +1737,7 @@ img {
   }
 }
 
+/* Tablets (hasta 960px) */
 @media (max-width: 960px) {
   .detail-grid {
     grid-template-columns: 1fr;
@@ -1686,11 +1774,9 @@ img {
   }
 }
 
+/* Tablets pequeñas y móviles grandes (hasta 768px) */
 @media (max-width: 768px) {
-  .container {
-    width: calc(100% - 28px);
-  }
-
+  /* El margen lateral lo controla --db-gutter (ver bloque final) */
   .page-shell {
     padding: 18px 0 48px;
   }
@@ -1767,6 +1853,7 @@ img {
 
   .auth-main {
     min-height: 100vh;
+    min-height: 100dvh;
     padding: 22px 14px;
   }
 
@@ -1822,21 +1909,412 @@ img {
   }
 }
 
-@media (max-width: 420px) {
+/* ==========================================================================
+   AJUSTE FINO PARA PANTALLAS PEQUEÑAS (900px → 300px)
+   Cada bloque se suma a los anteriores: mientras más angosta la pantalla,
+   más se compacta, sin ocultar información importante.
+   ========================================================================== */
+
+/* 769px a 900px · tablets pequeñas en horizontal */
+@media (min-width: 769px) and (max-width: 900px) {
+  .header-main {
+    gap: 12px;
+  }
+
+  .nav-link {
+    padding: 8px 10px;
+    font-size: 0.84rem;
+  }
+
+  .hero {
+    padding: 32px 26px;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+  }
+
+  .hero-visual {
+    width: min(36vw, 340px);
+  }
+
   .product-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 14px;
   }
 
-  .header-action-label {
-    display: none;
+  .category-strip {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   }
 
-  .brand-tag {
-    display: none;
+  .banner-strip {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .panel-page {
+    padding: 20px 18px 54px;
   }
 }
 
-/* Galería de producto ampliada */
+/* Hasta 600px · móviles grandes */
+@media (max-width: 600px) {
+  .section-head {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .hero {
+    padding: 24px 18px;
+  }
+
+  .hero-title {
+    margin: 14px 0 10px;
+  }
+
+  .hero-actions .q-btn {
+    flex: 1 1 100%; /* botones de la portada a todo el ancho */
+  }
+
+  .hero-stats {
+    gap: 14px 20px;
+  }
+
+  .banner-card {
+    min-height: 130px;
+    padding: 18px;
+  }
+
+  .banner-card-content {
+    max-width: 85%;
+  }
+
+  .category-strip {
+    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+    gap: 8px;
+  }
+
+  .category-card {
+    padding: 12px 6px;
+    font-size: 0.78rem;
+  }
+
+  .category-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .header-user-name {
+    max-width: 80px;
+  }
+
+  .gallery-main img {
+    padding: 12px;
+  }
+
+  .gallery-thumb {
+    flex-basis: 58px;
+  }
+
+  .buy-box,
+  .summary-card,
+  .filter-panel {
+    padding: 14px;
+  }
+
+  .buy-actions {
+    flex-direction: column; /* botones de compra uno debajo del otro */
+  }
+
+  .buy-actions .q-btn {
+    width: 100%;
+  }
+
+  .meta-list div {
+    flex-wrap: wrap;
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .stat-card {
+    gap: 10px;
+    padding: 13px;
+  }
+
+  .stat-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .panel-toolbar .q-field {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .auth-card {
+    padding: 22px 18px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Hasta 480px · móviles estándar */
+@media (max-width: 480px) {
+  .page-shell {
+    padding: 14px 0 40px;
+  }
+
+  .header-action-label,
+  .brand-tag {
+    display: none;
+  }
+
+  .hero-kicker {
+    padding: 6px 10px;
+    font-size: 0.68rem;
+  }
+
+  /* Productos en 2 columnas (antes pasaba a 1 sola a los 420px) */
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .product-media img {
+    padding: 6px;
+  }
+
+  .product-body {
+    gap: 4px;
+    padding: 8px;
+  }
+
+  .product-name {
+    min-height: 2.4em;
+    font-size: 0.8rem;
+  }
+
+  .price-current {
+    font-size: 0.95rem;
+  }
+
+  .price-old,
+  .price-discount {
+    font-size: 0.7rem;
+  }
+
+  .stock-text {
+    font-size: 0.68rem;
+  }
+
+  .discount-badge {
+    top: 6px;
+    left: 6px;
+    padding: 3px 6px;
+    font-size: 0.66rem;
+  }
+
+  .cart-line {
+    grid-template-columns: 60px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .cart-line img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .parts-row {
+    grid-template-columns: minmax(0, 1fr) 60px 80px 34px;
+  }
+
+  .timeline-item {
+    padding-left: 30px;
+  }
+
+  .rating-average strong {
+    font-size: 2.2rem;
+  }
+}
+
+/* Hasta 400px · móviles compactos */
+@media (max-width: 400px) {
+  :root {
+    --db-gutter: 12px;
+  }
+
+  .header-main {
+    gap: 8px;
+  }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .brand-name {
+    font-size: 1.05rem;
+  }
+
+  .hero {
+    padding: 20px 14px;
+    border-radius: 14px;
+  }
+
+  .hero-text {
+    font-size: 0.92rem;
+  }
+
+  .hero-stat strong {
+    font-size: 1.05rem;
+  }
+
+  .detail-price {
+    font-size: 1.6rem;
+  }
+
+  .buy-box,
+  .summary-card {
+    padding: 12px;
+  }
+
+  .auth-card {
+    padding: 20px 14px;
+  }
+
+  .footer-grid {
+    gap: 20px;
+    padding: 26px 0 20px;
+  }
+}
+
+/* Hasta 360px · pantallas angostas */
+@media (max-width: 360px) {
+  .product-body {
+    padding: 7px;
+  }
+
+  .product-name {
+    font-size: 0.76rem;
+  }
+
+  .price-current {
+    font-size: 0.9rem;
+  }
+
+  .product-foot {
+    flex-wrap: wrap; /* el stock y el botón bajan de línea si no caben */
+  }
+
+  .category-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hero-actions .q-btn {
+    font-size: 0.86rem;
+  }
+}
+
+/* Hasta 320px · móviles muy pequeños */
+@media (max-width: 320px) {
+  :root {
+    --db-gutter: 10px;
+  }
+
+  .product-grid {
+    gap: 6px;
+  }
+
+  .product-body {
+    padding: 6px;
+  }
+
+  .product-name {
+    font-size: 0.72rem;
+  }
+
+  .price-current {
+    font-size: 0.85rem;
+  }
+
+  .brand-name {
+    font-size: 1rem;
+  }
+
+  .hero {
+    padding: 18px 12px;
+  }
+
+  .hero-title {
+    font-size: 1.65rem;
+  }
+
+  .section-link {
+    white-space: normal;
+  }
+
+  .cart-line {
+    grid-template-columns: 52px minmax(0, 1fr);
+  }
+
+  .cart-line img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .parts-row {
+    grid-template-columns: minmax(0, 1fr) 54px 70px 30px;
+  }
+
+  .auth-card {
+    padding: 18px 12px;
+  }
+}
+
+/* Hasta 300px · límite inferior */
+@media (max-width: 300px) {
+  .product-grid {
+    grid-template-columns: 1fr; /* una sola columna */
+  }
+
+  .category-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-stats {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .header-user-name {
+    display: none;
+  }
+
+  .gallery-thumb {
+    flex-basis: 50px;
+  }
+
+  .footer-bottom {
+    font-size: 0.7rem;
+  }
+}
+
+/* ==========================================================================
+   GALERÍA DE PRODUCTO AMPLIADA (zoom)
+   ========================================================================== */
 #opiniones,
 #preguntas {
   scroll-margin-top: 92px;
@@ -1875,7 +2353,9 @@ img {
   cursor: zoom-out;
 }
 
-/* Configuración del sitio */
+/* ==========================================================================
+   CONFIGURACIÓN DEL SITIO (panel)
+   ========================================================================== */
 .sticky-card {
   position: sticky;
   top: 88px;
@@ -1939,9 +2419,127 @@ img {
   object-fit: cover;
 }
 
+/* Tablets y menores (hasta 1023px) */
 @media (max-width: 1023px) {
   .sticky-card {
     position: static;
   }
 }
 
+
+/* ==========================================================================
+   PANTALLA COMPLETA Y ADAPTABLE (de pequeña a grande)
+   Se aplican cuando la pantalla es MAYOR O IGUAL al ancho indicado.
+   Cada rango ajusta el margen lateral (--db-gutter) y, en pantallas
+   grandes, aprovecha el espacio extra con más columnas y paneles más anchos.
+   ========================================================================== */
+
+/* Móvil (base): margen lateral de 14px, definido arriba en :root */
+
+/* ≥ 480px · móviles grandes */
+@media (min-width: 480px) {
+  :root {
+    --db-gutter: 18px;
+  }
+}
+
+/* ≥ 768px · tablets */
+@media (min-width: 768px) {
+  :root {
+    --db-gutter: 28px;
+  }
+}
+
+/* ≥ 1024px · laptops pequeñas */
+@media (min-width: 1024px) {
+  :root {
+    --db-gutter: 36px;
+  }
+}
+
+/* ≥ 1440px · laptops grandes y monitores */
+@media (min-width: 1440px) {
+  :root {
+    --db-gutter: 48px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 20px;
+  }
+
+  .category-strip {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+
+  .hero-copy {
+    max-width: 760px;
+  }
+
+  .hero-visual {
+    width: min(34vw, 560px);
+  }
+
+  .cart-grid {
+    grid-template-columns: minmax(0, 1fr) 380px;
+  }
+
+  .account-grid {
+    grid-template-columns: 270px minmax(0, 1fr);
+  }
+
+  .panel-page {
+    padding: 28px 40px 70px;
+  }
+}
+
+/* ≥ 1920px · Full HD y superiores */
+@media (min-width: 1920px) {
+  :root {
+    --db-gutter: 64px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 22px;
+  }
+
+  .hero-title {
+    font-size: 3.6rem;
+  }
+
+  .hero-text {
+    max-width: 680px;
+    font-size: 1.15rem;
+  }
+}
+
+/* ≥ 2560px · pantallas QHD / 4K: más margen para que no se estire de más */
+@media (min-width: 2560px) {
+  :root {
+    --db-gutter: 96px;
+  }
+}
+
+/* Pantallas táctiles: sin efectos de "hover" que se quedan pegados al tocar */
+@media (hover: none) {
+  .product-card:hover,
+  .category-card:hover {
+    transform: none;
+  }
+
+  .product-card:hover .product-media img {
+    transform: none;
+  }
+}
+
+/* Personas que piden menos animaciones en su sistema */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
