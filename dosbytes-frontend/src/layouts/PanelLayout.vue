@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import Logo from '../components/common/Logo.vue'
 import { useAuthStore } from '../stores/auth'
 import { useSiteStore } from '../stores/site'
@@ -8,6 +9,7 @@ import { notifySuccess } from '../utils/notify'
 
 const route = useRoute()
 const router = useRouter()
+const $q = useQuasar()
 const auth = useAuthStore()
 const site = useSiteStore()
 const drawer = ref(false)
@@ -66,8 +68,12 @@ const navGroups = computed(() => [
 
 const pageTitle = computed(() => route.meta.title || 'Panel')
 
+// CORRECCIÓN: antes cerraba el menú SIEMPRE al hacer clic en una opción,
+// también en computador, y el menú lateral desaparecía al cambiar de página.
+// Ahora solo se cierra en pantallas pequeñas (menos de 1024px), donde el
+// menú se abre encima del contenido.
 function closeDrawer() {
-  drawer.value = false
+  if ($q.screen.lt.md) drawer.value = false
 }
 
 async function logout() {
