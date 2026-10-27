@@ -261,7 +261,7 @@ onMounted(load)
         </section>
 
         <section class="section">
-          <div class="surface-card q-pa-lg row items-center justify-between q-gutter-lg">
+          <div class="surface-card q-pa-lg row items-center justify-between q-gutter-lg track-cta">
             <div>
               <span class="eyebrow">Seguimiento</span>
               <h2 class="section-title">Consulta el estado de tu reparación</h2>
@@ -269,7 +269,7 @@ onMounted(load)
                 Ingresa el código que recibiste por correo, por ejemplo SRV-AB12CD.
               </p>
             </div>
-            <form class="row q-gutter-sm" style="min-width: min(100%, 360px)" @submit.prevent="goTrack">
+            <form class="row q-gutter-sm track-form" @submit.prevent="goTrack">
               <q-input
                 v-model="trackCode"
                 outlined

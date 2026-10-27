@@ -166,7 +166,17 @@ watch(() => auth.role, (role) => {
               to="/registro"
               class="gt-xs"
             />
+            <!-- Por debajo de 600px los botones de texto se ocultan (gt-xs);
+                 este icono garantiza que "Crear cuenta" NUNCA desaparezca. -->
             <q-btn flat round icon="person" aria-label="Ingresar" to="/ingresar" class="lt-sm" />
+            <q-btn
+              flat
+              round
+              icon="person_add"
+              aria-label="Crear cuenta"
+              to="/registro"
+              class="lt-sm"
+            />
           </template>
         </div>
       </div>

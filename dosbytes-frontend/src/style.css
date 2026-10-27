@@ -32,6 +32,13 @@
      --db-gutter cambia con las media queries del final del archivo. */
   --db-gutter: 14px;
   --db-container-max: 2400px;
+
+  /* Altura REAL de las cabeceras fijas (q-header), usada por los elementos
+     pegajosos (sticky) y por los anclas de sección. Si cambia la cabecera,
+     se ajusta aquí y todos los sticky/anclas siguen bien posicionados.
+     Se recalibra con DevTools: seleccionar .site-header → pestaña Computed. */
+  --db-header-h: 136px;      /* nav horizontal en 1 fila */
+  --db-panel-header-h: 64px; /* cabecera oscura del panel interno */
 }
 
 * {
@@ -216,6 +223,12 @@ img {
    ========================================================================== */
 .site-header {
   background: var(--db-surface);
+  /* Quasar pinta las cabeceras con texto BLANCO (.q-layout__section--marginal
+     aplica color: #fff) y aquí el fondo es claro: los botones planos salían
+     blanco sobre blanco y quedaban INVISIBLES (menú hamburguesa, "Ingresar",
+     iconos de favoritos/carrito/crear cuenta). Fijamos el color de texto de
+     toda la cabecera para que ningún botón desaparezca. */
+  color: var(--db-text);
   border-bottom: 1px solid var(--db-line);
   box-shadow: 0 2px 12px rgba(15, 31, 58, 0.04);
 }
@@ -224,7 +237,11 @@ img {
   display: flex;
   align-items: center;
   gap: 18px;
+  row-gap: 10px;
   padding: 12px 0;
+  /* Si la marca o los botones no caben en una fila, bajan a otra en vez de
+     quedar cortados (protege botones clave como "Crear cuenta"). */
+  flex-wrap: wrap;
 }
 
 .brand {
@@ -272,10 +289,6 @@ img {
   flex: 0 0 auto;
 }
 
-.header-action-label {
-  margin-left: 4px;
-}
-
 .header-nav {
   border-top: 1px solid var(--db-line);
 }
@@ -284,9 +297,12 @@ img {
   display: flex;
   align-items: center;
   gap: 6px;
+  row-gap: 2px;
   padding: 4px 0;
   overflow-x: auto;
   scrollbar-width: none;
+  /* Nunca recorta enlaces: si no caben en una fila, pasan a la siguiente. */
+  flex-wrap: wrap;
 }
 
 .header-nav-inner::-webkit-scrollbar {
@@ -802,7 +818,7 @@ img {
 
 .filter-panel {
   position: sticky;
-  top: 18px;
+  top: calc(var(--db-header-h) + 16px);
   padding: 18px;
 }
 
@@ -908,7 +924,7 @@ img {
 
 .detail-info {
   position: sticky;
-  top: 18px;
+  top: calc(var(--db-header-h) + 16px);
 }
 
 .detail-title {
@@ -1113,7 +1129,7 @@ img {
 
 .summary-card {
   position: sticky;
-  top: 18px;
+  top: calc(var(--db-header-h) + 16px);
   padding: 18px;
 }
 
@@ -1214,7 +1230,7 @@ img {
 
 .account-nav {
   position: sticky;
-  top: 18px;
+  top: calc(var(--db-header-h) + 16px);
   overflow: hidden;
 }
 
@@ -1719,11 +1735,224 @@ img {
 }
 
 /* ==========================================================================
-   MEDIA QUERIES (de pantalla grande a pequeña)
-   Se aplican cuando la pantalla es MENOR O IGUAL al ancho indicado.
+   GALERÍA DE PRODUCTO AMPLIADA (zoom)
    ========================================================================== */
-/* Laptops pequeñas (hasta 1080px) */
-@media (max-width: 1080px) {
+#opiniones,
+#preguntas {
+  scroll-margin-top: calc(var(--db-header-h) + 12px);
+}
+
+.zoom-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  max-height: calc(100vh - 170px);
+  overflow: auto;
+  padding: 12px;
+}
+
+.zoom-image {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100vh - 200px);
+  object-fit: contain;
+  border-radius: 10px;
+  cursor: zoom-in;
+  transition: transform 0.25s ease;
+  transform-origin: center center;
+}
+
+.zoom-stage.zoomed {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.zoom-stage.zoomed .zoom-image {
+  max-width: none;
+  max-height: none;
+  width: 170%;
+  cursor: zoom-out;
+}
+
+/* ==========================================================================
+   CONFIGURACIÓN DEL SITIO (panel)
+   ========================================================================== */
+.sticky-card {
+  position: sticky;
+  top: calc(var(--db-panel-header-h) + 16px);
+}
+
+.config-preview-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.config-preview-logo {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid var(--db-line);
+  background: var(--db-surface);
+  padding: 6px;
+}
+
+.config-preview-mark {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  background: var(--db-primary);
+  color: var(--db-accent);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.config-tips {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--db-muted);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.config-tips li + li {
+  margin-top: 6px;
+}
+
+.banner-editor {
+  background: var(--db-bg);
+}
+
+.banner-preview {
+  overflow: hidden;
+  border: 1px solid var(--db-line);
+  border-radius: 10px;
+  background: var(--db-surface);
+}
+
+.banner-preview img {
+  display: block;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+
+/* CTA "Seguimiento" del home: texto a la izquierda, formulario a la derecha
+   con un ancho mínimo de 360px para que el campo no quede aplastado.
+   En pantallas angostas el formulario se apila (media query de 480px). */
+.track-cta {
+  row-gap: 14px;
+}
+
+.track-form {
+  min-width: min(100%, 360px);
+}
+
+/* ==========================================================================
+   MEDIA QUERIES — SIEMPRE AL FINAL DEL ARCHIVO
+   Escalera ordenada de 1440px → 300px (de pantalla grande a pequeña).
+   Se aplican cuando la pantalla es MENOR O IGUAL al ancho indicado.
+   Cada bloque se suma a los anteriores: mientras más angosta la pantalla,
+   más se compacta, sin ocultar información importante ni romper el diseño.
+
+   REGLAS DE ORO DE ESTA ESCALERA:
+   1) Nada se recorta: si un contenido no cabe en una fila, pasa a la
+      siguiente (flex-wrap) en vez de quedar cortado o escondido tras un
+      scroll invisible.
+   2) Ningún botón importante desaparece sin dejar un equivalente visible
+      (ej. "Crear cuenta" y "Ingresar" siguen presentes a cualquier ancho).
+   3) Los valores que dependen de la cabecera fija viven en --db-header-h.
+   ========================================================================== */
+
+/* 1439px · laptops y escritorios chicos (rango "md" de Quasar, < 1440px)
+   La barra de categorías mide ~1380px con las 7 categorías del catálogo:
+   aquí ya no cabe en una sola línea, así que se divide en 2 niveles para no
+   cortar "Consultar estado" ni los enlaces de servicio. Todo sigue visible. */
+@media (max-width: 1439.98px) {
+  :root {
+    --db-header-h: 170px; /* cabecera con la barra de categorías en 2 filas */
+  }
+
+  /* El separador ocupa una fila entera: fuerza el salto de línea antes del
+     grupo de la derecha, así la nav queda en 2 niveles ordenados y simétricos
+     (fila 1: categorías · fila 2: servicios, alineada a la derecha). */
+  .header-nav-inner > span.q-ml-auto {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 0;
+    margin-left: 0;
+  }
+
+  .header-nav-inner > span.q-ml-auto + .nav-link {
+    margin-left: auto; /* el grupo derecho se pega a la derecha */
+  }
+
+  /* Filas de nav más bajas para que la cabecera doble no crezca de más */
+  .nav-link {
+    padding: 7px 11px;
+    font-size: 0.84rem;
+  }
+}
+
+/* 1300px · laptops 1366/1300: primer paso de compactación vertical */
+@media (max-width: 1300px) {
+  .hero {
+    padding: clamp(24px, 4vw, 44px);
+  }
+
+  .section {
+    margin-top: 30px;
+  }
+
+  .page-head {
+    margin-bottom: 18px;
+  }
+
+  .detail-grid {
+    gap: 24px;
+  }
+
+  .footer-grid {
+    gap: 26px;
+  }
+}
+
+/* 1200px · portátiles: ritmo más apretado y gráfico decorativo del hero
+   más pequeño para que nunca se monte sobre el título */
+@media (max-width: 1200px) {
+  .hero {
+    padding: clamp(24px, 3.4vw, 38px);
+  }
+
+  .hero-visual {
+    width: min(34vw, 360px);
+  }
+
+  .section {
+    margin-top: 28px;
+  }
+
+  .footer-grid {
+    gap: 24px;
+    padding: 34px 0 26px;
+  }
+
+  .panel-page {
+    padding: 22px 20px 56px;
+  }
+}
+
+/* 1024px · corte de Quasar (md/sm): aquí aparece la hamburguesa y desaparece
+   la barra de categorías; en el catálogo el filtro pasa a botón "Filtros" */
+@media (max-width: 1024px) {
+  :root {
+    --db-header-h: 74px; /* solo header-main: sin barra de categorías */
+  }
+
   .footer-grid {
     grid-template-columns: 1.4fr 0.8fr 0.9fr;
   }
@@ -1737,7 +1966,7 @@ img {
   }
 }
 
-/* Tablets (hasta 960px) */
+/* 960px · tablets apaisadas: colapsan las cuadrículas de 2 columnas */
 @media (max-width: 960px) {
   .detail-grid {
     grid-template-columns: 1fr;
@@ -1772,11 +2001,80 @@ img {
   .account-nav .q-item {
     flex: 0 0 auto;
   }
+
+  /* La navegación de Mi cuenta queda en horizontal: se oculta el separador
+     que, en fila, se veía como una línea suelta. */
+  .account-nav .q-separator {
+    display: none;
+  }
+
+  /* Ingresar / Registro: la columna oscura se retira aquí (antes en 768),
+     porque entre 769px y 950px quedaba una tira oscura de 420px y la tarjeta
+     del formulario se apretaba hasta ~310px. Ahora la tarjeta respira. */
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-aside {
+    display: none;
+  }
 }
 
-/* Tablets pequeñas y móviles grandes (hasta 768px) */
+/* 880px · tablets y nets: ajuste de encabezado, hero y tiras */
+@media (max-width: 880px) {
+  .header-main {
+    gap: 12px;
+  }
+
+  .nav-link {
+    padding: 8px 10px;
+    font-size: 0.84rem;
+  }
+
+  .hero {
+    padding: 32px 26px;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+  }
+
+  .hero-visual {
+    width: min(30vw, 300px);
+  }
+
+  /* Productos en 3 columnas en tablets (antes quedaban 4 tarjetas de ~177px:
+     demasiado apretadas) */
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+    gap: 14px;
+  }
+
+  .category-strip {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+
+  .banner-strip {
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .panel-page {
+    padding: 20px 18px 54px;
+  }
+}
+
+/* 768px · umbral móvil: header envuelve (buscador a su propia fila),
+   nav → menú hamburguesa, hero sin gráfico, productos en 3 columnas,
+   footer en 2 columnas, formulario de ingreso a ancho completo */
 @media (max-width: 768px) {
-  /* El margen lateral lo controla --db-gutter (ver bloque final) */
+  :root {
+    --db-header-h: 122px; /* cabecera con el buscador en la segunda fila */
+  }
+
   .page-shell {
     padding: 18px 0 48px;
   }
@@ -1814,7 +2112,7 @@ img {
   }
 
   .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
   }
 
@@ -1841,14 +2139,6 @@ img {
 
   .rating-breakdown {
     width: 100%;
-  }
-
-  .auth-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .auth-aside {
-    display: none;
   }
 
   .auth-main {
@@ -1909,59 +2199,8 @@ img {
   }
 }
 
-/* ==========================================================================
-   AJUSTE FINO PARA PANTALLAS PEQUEÑAS (900px → 300px)
-   Cada bloque se suma a los anteriores: mientras más angosta la pantalla,
-   más se compacta, sin ocultar información importante.
-   ========================================================================== */
-
-/* 769px a 900px · tablets pequeñas en horizontal */
-@media (min-width: 769px) and (max-width: 900px) {
-  .header-main {
-    gap: 12px;
-  }
-
-  .nav-link {
-    padding: 8px 10px;
-    font-size: 0.84rem;
-  }
-
-  .hero {
-    padding: 32px 26px;
-  }
-
-  .hero-copy {
-    max-width: 100%;
-  }
-
-  .hero-visual {
-    width: min(36vw, 340px);
-  }
-
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
-    gap: 14px;
-  }
-
-  .category-strip {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  }
-
-  .banner-strip {
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  }
-
-  .stat-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  }
-
-  .panel-page {
-    padding: 20px 18px 54px;
-  }
-}
-
-/* Hasta 600px · móviles grandes */
-@media (max-width: 600px) {
+/* 640px · móviles grandes: acciones apiladas, padding reducido */
+@media (max-width: 640px) {
   .section-head {
     flex-wrap: wrap;
     align-items: flex-start;
@@ -1977,13 +2216,61 @@ img {
   }
 
   .hero-actions .q-btn {
-    flex: 1 1 100%; /* botones de la portada a todo el ancho */
+    flex: 1 1 100%;
   }
 
   .hero-stats {
     gap: 14px 20px;
   }
 
+  .buy-box,
+  .summary-card,
+  .filter-panel {
+    padding: 14px;
+  }
+
+  .buy-actions {
+    flex-direction: column;
+  }
+
+  .buy-actions .q-btn {
+    width: 100%;
+  }
+
+  .meta-list div {
+    flex-wrap: wrap;
+  }
+
+  .header-user-name {
+    max-width: 80px;
+  }
+
+  .gallery-main img {
+    padding: 12px;
+  }
+
+  .gallery-thumb {
+    flex-basis: 58px;
+  }
+
+  .panel-toolbar .q-field {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+}
+
+/* 600px · corte de Quasar (lt-sm): teléfonos. Los botones de texto del
+   encabezado pasan a iconos y los productos bajan a 2 columnas, con lo que la
+   escalera de columnas queda 6+ → 5 → 4 → 3 → 2 → 1 sin saltos bruscos. */
+@media (max-width: 600px) {
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+/* 560px · móviles: tarjetas de banner y categorías compactas */
+@media (max-width: 560px) {
   .banner-card {
     min-height: 130px;
     padding: 18px;
@@ -2008,36 +2295,6 @@ img {
     height: 40px;
   }
 
-  .header-user-name {
-    max-width: 80px;
-  }
-
-  .gallery-main img {
-    padding: 12px;
-  }
-
-  .gallery-thumb {
-    flex-basis: 58px;
-  }
-
-  .buy-box,
-  .summary-card,
-  .filter-panel {
-    padding: 14px;
-  }
-
-  .buy-actions {
-    flex-direction: column; /* botones de compra uno debajo del otro */
-  }
-
-  .buy-actions .q-btn {
-    width: 100%;
-  }
-
-  .meta-list div {
-    flex-wrap: wrap;
-  }
-
   .stat-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
@@ -2053,11 +2310,6 @@ img {
     height: 38px;
   }
 
-  .panel-toolbar .q-field {
-    flex: 1 1 100%;
-    min-width: 100%;
-  }
-
   .auth-card {
     padding: 22px 18px;
   }
@@ -2067,13 +2319,30 @@ img {
   }
 }
 
-/* Hasta 480px · móviles estándar */
+/* 480px · móviles estándar: oculta etiquetas, escala de texto de tarjeta */
 @media (max-width: 480px) {
+  /* CTA de seguimiento del home: el campo y el botón no caben juntos en
+     ~250px (la etiqueta "Código de la orden" quedaba cortada y el conjunto
+     se veía deformado) → el formulario pasa a ocupar todo el ancho en 2 filas:
+     campo arriba, botón "Consultar" abajo al 100%. */
+  .track-form {
+    min-width: 100%;
+  }
+
+  .track-form .col {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .track-form .q-btn {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
   .page-shell {
     padding: 14px 0 40px;
   }
 
-  .header-action-label,
   .brand-tag {
     display: none;
   }
@@ -2083,7 +2352,7 @@ img {
     font-size: 0.68rem;
   }
 
-  /* Productos en 2 columnas (antes pasaba a 1 sola a los 420px) */
+  /* Productos siguen en 2 columnas (se reducen textos, no se pierde detalle) */
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
@@ -2146,13 +2415,28 @@ img {
   }
 }
 
-/* Hasta 400px · móviles compactos */
-@media (max-width: 400px) {
+/* 420px · móviles compactos */
+@media (max-width: 420px) {
   :root {
     --db-gutter: 12px;
   }
 
   .header-main {
+    gap: 8px;
+  }
+
+  /* La marca y los botones de la cabecera deben caber en UNA sola fila a
+     300-420px: los iconos de acción bajan de 42px a 36px para que el logo no
+     tenga que empujarse hacia el centro ni nada pase a una segunda fila. */
+  .header-actions .q-btn {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+  }
+
+  .brand {
     gap: 8px;
   }
 
@@ -2197,7 +2481,7 @@ img {
   }
 }
 
-/* Hasta 360px · pantallas angostas */
+/* 360px · pantallas angostas (aún 2 columnas de productos) */
 @media (max-width: 360px) {
   .product-body {
     padding: 7px;
@@ -2222,9 +2506,15 @@ img {
   .hero-actions .q-btn {
     font-size: 0.86rem;
   }
+
+  /* El enlace "Ver todo" ya no fuerza una sola línea: si no cabe al lado del
+     título, baja a la siguiente fila en vez de empujar o cortar contenido. */
+  .section-link {
+    white-space: normal;
+  }
 }
 
-/* Hasta 320px · móviles muy pequeños */
+/* 320px · móviles muy pequeños (último escalón con 2 columnas) */
 @media (max-width: 320px) {
   :root {
     --db-gutter: 10px;
@@ -2258,10 +2548,6 @@ img {
     font-size: 1.65rem;
   }
 
-  .section-link {
-    white-space: normal;
-  }
-
   .cart-line {
     grid-template-columns: 52px minmax(0, 1fr);
   }
@@ -2280,7 +2566,7 @@ img {
   }
 }
 
-/* Hasta 300px · límite inferior */
+/* 300px · límite inferior: productos a 1 columna */
 @media (max-width: 300px) {
   .product-grid {
     grid-template-columns: 1fr; /* una sola columna */
@@ -2309,237 +2595,5 @@ img {
 
   .footer-bottom {
     font-size: 0.7rem;
-  }
-}
-
-/* ==========================================================================
-   GALERÍA DE PRODUCTO AMPLIADA (zoom)
-   ========================================================================== */
-#opiniones,
-#preguntas {
-  scroll-margin-top: 92px;
-}
-
-.zoom-stage {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  max-height: calc(100vh - 170px);
-  overflow: auto;
-  padding: 12px;
-}
-
-.zoom-image {
-  display: block;
-  max-width: 100%;
-  max-height: calc(100vh - 200px);
-  object-fit: contain;
-  border-radius: 10px;
-  cursor: zoom-in;
-  transition: transform 0.25s ease;
-  transform-origin: center center;
-}
-
-.zoom-stage.zoomed {
-  justify-content: flex-start;
-  align-items: flex-start;
-}
-
-.zoom-stage.zoomed .zoom-image {
-  max-width: none;
-  max-height: none;
-  width: 170%;
-  cursor: zoom-out;
-}
-
-/* ==========================================================================
-   CONFIGURACIÓN DEL SITIO (panel)
-   ========================================================================== */
-.sticky-card {
-  position: sticky;
-  top: 88px;
-}
-
-.config-preview-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.config-preview-logo {
-  width: 54px;
-  height: 54px;
-  object-fit: contain;
-  border-radius: 12px;
-  border: 1px solid var(--db-line);
-  background: var(--db-surface);
-  padding: 6px;
-}
-
-.config-preview-mark {
-  display: grid;
-  place-items: center;
-  width: 54px;
-  height: 54px;
-  border-radius: 12px;
-  background: var(--db-primary);
-  color: var(--db-accent);
-  font-weight: 800;
-  letter-spacing: 0.06em;
-}
-
-.config-tips {
-  margin: 0;
-  padding-left: 18px;
-  color: var(--db-muted);
-  font-size: 0.86rem;
-  line-height: 1.55;
-}
-
-.config-tips li + li {
-  margin-top: 6px;
-}
-
-.banner-editor {
-  background: var(--db-bg);
-}
-
-.banner-preview {
-  overflow: hidden;
-  border: 1px solid var(--db-line);
-  border-radius: 10px;
-  background: var(--db-surface);
-}
-
-.banner-preview img {
-  display: block;
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-}
-
-/* Tablets y menores (hasta 1023px) */
-@media (max-width: 1023px) {
-  .sticky-card {
-    position: static;
-  }
-}
-
-
-/* ==========================================================================
-   PANTALLA COMPLETA Y ADAPTABLE (de pequeña a grande)
-   Se aplican cuando la pantalla es MAYOR O IGUAL al ancho indicado.
-   Cada rango ajusta el margen lateral (--db-gutter) y, en pantallas
-   grandes, aprovecha el espacio extra con más columnas y paneles más anchos.
-   ========================================================================== */
-
-/* Móvil (base): margen lateral de 14px, definido arriba en :root */
-
-/* ≥ 480px · móviles grandes */
-@media (min-width: 480px) {
-  :root {
-    --db-gutter: 18px;
-  }
-}
-
-/* ≥ 768px · tablets */
-@media (min-width: 768px) {
-  :root {
-    --db-gutter: 28px;
-  }
-}
-
-/* ≥ 1024px · laptops pequeñas */
-@media (min-width: 1024px) {
-  :root {
-    --db-gutter: 36px;
-  }
-}
-
-/* ≥ 1440px · laptops grandes y monitores */
-@media (min-width: 1440px) {
-  :root {
-    --db-gutter: 48px;
-  }
-
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    gap: 20px;
-  }
-
-  .category-strip {
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  }
-
-  .hero-copy {
-    max-width: 760px;
-  }
-
-  .hero-visual {
-    width: min(34vw, 560px);
-  }
-
-  .cart-grid {
-    grid-template-columns: minmax(0, 1fr) 380px;
-  }
-
-  .account-grid {
-    grid-template-columns: 270px minmax(0, 1fr);
-  }
-
-  .panel-page {
-    padding: 28px 40px 70px;
-  }
-}
-
-/* ≥ 1920px · Full HD y superiores */
-@media (min-width: 1920px) {
-  :root {
-    --db-gutter: 64px;
-  }
-
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-    gap: 22px;
-  }
-
-  .hero-title {
-    font-size: 3.6rem;
-  }
-
-  .hero-text {
-    max-width: 680px;
-    font-size: 1.15rem;
-  }
-}
-
-/* ≥ 2560px · pantallas QHD / 4K: más margen para que no se estire de más */
-@media (min-width: 2560px) {
-  :root {
-    --db-gutter: 96px;
-  }
-}
-
-/* Pantallas táctiles: sin efectos de "hover" que se quedan pegados al tocar */
-@media (hover: none) {
-  .product-card:hover,
-  .category-card:hover {
-    transform: none;
-  }
-
-  .product-card:hover .product-media img {
-    transform: none;
-  }
-}
-
-/* Personas que piden menos animaciones en su sistema */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
