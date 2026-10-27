@@ -1841,15 +1841,39 @@ img {
   object-fit: cover;
 }
 
-/* CTA "Seguimiento" del home: texto a la izquierda, formulario a la derecha
-   con un ancho mínimo de 360px para que el campo no quede aplastado.
-   En pantallas angostas el formulario se apila (media query de 480px). */
+/* CTA "Seguimiento" del home: MISMA base que las tarjetas de servicios
+   (surface-card + q-pa-lg), sin las utilidades q-gutter. Esas utilidades
+   meten margin: -24px en la tarjeta y margin: 24px en cada hijo, por lo que
+   el campo y el botón se salían del padding y sus bordes no coincidían con
+   el texto (aspecto deformado). Todo el espaciado se controla aquí. */
 .track-cta {
-  row-gap: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.track-cta-copy {
+  flex: 1 1 300px;
+  min-width: 0;
 }
 
 .track-form {
-  min-width: min(100%, 360px);
+  display: flex;
+  align-items: stretch; /* campo y botón a la misma altura */
+  gap: 10px;
+  flex: 1 1 320px;
+  min-width: min(100%, 340px);
+}
+
+.track-form .q-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.track-form .q-btn {
+  flex: 0 0 auto;
 }
 
 /* ==========================================================================
@@ -2321,21 +2345,26 @@ img {
 
 /* 480px · móviles estándar: oculta etiquetas, escala de texto de tarjeta */
 @media (max-width: 480px) {
-  /* CTA de seguimiento del home: el campo y el botón no caben juntos en
-     ~250px (la etiqueta "Código de la orden" quedaba cortada y el conjunto
-     se veía deformado) → el formulario pasa a ocupar todo el ancho en 2 filas:
-     campo arriba, botón "Consultar" abajo al 100%. */
-  .track-form {
-    min-width: 100%;
+  /* CTA de seguimiento del home: a este ancho el campo y el botón se apilan
+     a todo el ancho, con el mismo aire y alineación que el resto de tarjetas
+     (campo arriba, "Consultar" abajo, sin sobresalir del padding). */
+  .track-cta {
+    align-items: stretch;
+    gap: 16px;
   }
 
-  .track-form .col {
+  .track-cta-copy,
+  .track-form {
     flex: 1 1 100%;
+  }
+
+  .track-form {
     min-width: 100%;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .track-form .q-btn {
-    flex: 1 1 100%;
     width: 100%;
   }
 
