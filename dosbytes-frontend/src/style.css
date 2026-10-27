@@ -349,11 +349,25 @@ img {
 
 .mobile-drawer {
   background: var(--db-surface);
+  /* El drawer mide 300px (prop :width, que Quasar expone como
+     --q-drawer-width): en pantallas de 300px tapaba el fondo al 100% y no
+     quedaba sitio pulsable para cerrarlo (tocaba recargar la página).
+     Nunca supera el 86% de la pantalla, así siempre queda visible una franja
+     del fondo que cierra el menú al pulsarla. */
+  width: min(var(--q-drawer-width, 300px), 86vw);
 }
 
 .mobile-nav-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   padding: 18px 18px 10px;
   border-bottom: 1px solid var(--db-line);
+}
+
+.mobile-nav-close {
+  flex: 0 0 auto;
 }
 
 .mobile-nav-section {

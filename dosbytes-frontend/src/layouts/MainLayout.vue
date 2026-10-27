@@ -37,6 +37,18 @@ watch(() => ui.mobileNav, (open) => {
     >
       <div class="mobile-nav-head">
         <Logo tagline="Menú" />
+        <!-- A anchos muy pequeños el drawer cubre toda la pantalla y el fondo
+             (backdrop) deja de ser pulsable: este botón garantiza que el menú
+             SIEMPRE se pueda cerrar sin recargar la página. -->
+        <q-btn
+          flat
+          round
+          dense
+          icon="close"
+          aria-label="Cerrar menú"
+          class="mobile-nav-close"
+          @click="close"
+        />
       </div>
       <q-list padding>
         <div class="mobile-nav-section">Catálogo</div>
