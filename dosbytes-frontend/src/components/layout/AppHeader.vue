@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Logo from '../common/Logo.vue'
 import SearchAutocomplete from './SearchAutocomplete.vue'
 import { useAuthStore } from '../../stores/auth'
@@ -11,6 +11,17 @@ import { useUiStore } from '../../stores/ui'
 import { notifySuccess } from '../../utils/notify'
 
 const router = useRouter()
+const route = useRoute()
+
+// Todas las categorías apuntan a la misma ruta (/productos) y solo cambia el
+// query, así que Vue Router marcaría TODAS como activas. El estado real se
+// calcula aquí con el query actual y se aplica como clase `is-active`.
+const activeCategory = computed(() =>
+  route.name === 'catalog' ? String(route.query.category || '') : ''
+)
+const offersActive = computed(
+  () => route.name === 'catalog' && !route.query.category && route.query.isOffer === 'true'
+)
 const auth = useAuthStore()
 const favorites = useFavoritesStore()
 const cart = useCartStore()
@@ -213,11 +224,20 @@ watch(() => auth.role, (role) => {
           v-for="category in navCategories"
           :key="category._id"
           class="nav-link"
+          active-class=""
+          :class="{ 'is-active': category.slug === activeCategory }"
           :to="{ name: 'catalog', query: { category: category.slug } }"
         >
           {{ category.name }}
         </router-link>
-        <router-link class="nav-link" to="/productos?isOffer=true">Ofertas</router-link>
+        <router-link
+          class="nav-link"
+          active-class=""
+          :class="{ 'is-active': offersActive }"
+          to="/productos?isOffer=true"
+        >
+          Ofertas
+        </router-link>
         <span class="q-ml-auto" />
         <router-link class="nav-link" to="/servicios">Servicios y tarifas</router-link>
         <router-link class="nav-link" to="/servicio-tecnico">Solicitar reparación</router-link>

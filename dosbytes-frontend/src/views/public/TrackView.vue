@@ -174,7 +174,7 @@ useSeo({
         <div>
           <span class="eyebrow">Estado de tu equipo</span>
           <h1 class="title-xl">Consulta tu reparación</h1>
-          <p class="text-body2 text-grey-7 q-mb-none" style="max-width: 620px">
+          <p class="text-body2 text-grey-7 q-mb-none">
             Ingresa el código que recibiste por correo (por ejemplo
             <strong>SRV-AB12CD</strong>). No necesitas iniciar sesión.
           </p>
