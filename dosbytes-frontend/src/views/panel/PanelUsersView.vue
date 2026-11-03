@@ -519,7 +519,7 @@ useSeo({ title: 'Usuarios' })
       </q-card-section>
     </q-card>
 
-    <q-dialog v-model="dialog">
+    <q-dialog v-model="dialog" persistent>
       <q-card style="width: min(520px, 94vw)">
         <q-card-section class="row items-center justify-between q-pb-sm">
           <div class="text-h6 text-weight-bold">{{ formTitle }}</div>
@@ -595,7 +595,7 @@ useSeo({ title: 'Usuarios' })
       </q-card>
     </q-dialog>
 
-    <q-dialog v-model="createDialog" @hide="createdEmployee = null">
+    <q-dialog v-model="createDialog" persistent @hide="createdEmployee = null">
       <q-card style="width: min(560px, 94vw); max-height: 92vh">
         <q-card-section class="row items-center justify-between q-pb-sm">
           <div>

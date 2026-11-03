@@ -30,6 +30,11 @@ function addToCart() {
     notifyInfo('El carrito está disponible para las cuentas de cliente.')
     return
   }
+  if (!auth.isAuthenticated) {
+    notifyInfo('Inicia sesión para agregar productos al carrito.')
+    router.push({ name: 'login', query: { redirect: route.fullPath } })
+    return
+  }
   if (!inStock.value) return
   if (cart.add(props.product, 1)) {
     notifySuccess('Producto agregado al carrito')
@@ -114,7 +119,9 @@ async function toggleFavorite() {
           aria-label="Agregar al carrito"
           @click.stop.prevent="addToCart"
         >
-          <q-tooltip>Agregar al carrito</q-tooltip>
+          <q-tooltip>
+            {{ auth.isAuthenticated ? 'Agregar al carrito' : 'Inicia sesión para agregar al carrito' }}
+          </q-tooltip>
         </q-btn>
       </div>
     </div>

@@ -88,6 +88,11 @@ function addToCart() {
     notifyInfo('El carrito está disponible para las cuentas de cliente.')
     return
   }
+  if (!auth.isAuthenticated) {
+    notifyInfo('Inicia sesión para agregar productos al carrito.')
+    router.push({ name: 'login', query: { redirect: route.fullPath } })
+    return
+  }
   if (!inStock.value) return
   if (cart.add(product.value, quantity.value)) {
     notifySuccess(`${quantity.value} unidad(es) agregadas al carrito`)
@@ -280,6 +285,14 @@ onMounted(load)
                   :label="isFavorite ? 'Guardado' : 'Favorito'"
                   @click="toggleFavorite"
                 />
+              </div>
+
+              <div
+                v-if="!auth.isStaff && !auth.isAuthenticated"
+                class="text-caption text-grey-7 q-mt-sm"
+              >
+                <q-icon name="info" size="14px" class="q-mr-xs" />
+                Inicia sesión para agregar productos al carrito.
               </div>
 
               <q-banner v-else class="bg-blue-1 text-primary q-mt-md" rounded dense>

@@ -304,7 +304,7 @@ useSeo({ title: 'Configuración del sitio' })
                       :rules="rules.adminEmail"
                       lazy-rules
                     >
-                      <template #prepend><q-icon name="shield_person" /></template>
+                      <template #prepend><q-icon name="admin_panel_settings" /></template>
                     </q-input>
                   </div>
                   <div class="col-12 col-sm-6">
@@ -316,7 +316,7 @@ useSeo({ title: 'Configuración del sitio' })
                       :rules="rules.adminEmail"
                       lazy-rules
                     >
-                      <template #prepend><q-icon name="shield_person" /></template>
+                      <template #prepend><q-icon name="admin_panel_settings" /></template>
                     </q-input>
                   </div>
                   <div class="col-12 col-sm-6">

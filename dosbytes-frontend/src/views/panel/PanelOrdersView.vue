@@ -326,7 +326,7 @@ useSeo({ title: 'Pedidos' })
       </div>
     </q-card>
 
-    <q-dialog v-model="detailOpen">
+    <q-dialog v-model="detailOpen" persistent>
       <q-card style="width: min(760px, 95vw); max-height: 92vh">
         <q-card-section class="row items-center justify-between q-pb-sm">
           <div>

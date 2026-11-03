@@ -308,7 +308,7 @@ useSeo({ title: 'Tarifas de servicios' })
       <q-btn unelevated no-caps color="primary" icon="add" label="Nuevo servicio" @click="openCreate" />
     </EmptyState>
 
-    <q-dialog v-model="dialog">
+    <q-dialog v-model="dialog" persistent>
       <q-card style="width: min(660px, 94vw); max-height: 92vh">
         <q-card-section class="row items-center justify-between q-pb-sm">
           <div class="text-h6 text-weight-bold">

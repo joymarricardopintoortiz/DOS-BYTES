@@ -175,7 +175,7 @@ useSeo({
       <q-btn unelevated no-caps color="primary" icon="storefront" label="Ver productos" to="/productos" />
     </EmptyState>
 
-    <q-dialog :model-value="Boolean(editing)" @update:model-value="editing = null">
+    <q-dialog :model-value="Boolean(editing)" persistent @update:model-value="editing = null">
       <q-card style="width: min(500px, 94vw)">
         <q-card-section class="row items-center q-gutter-sm">
           <q-icon name="edit" color="primary" size="24px" />

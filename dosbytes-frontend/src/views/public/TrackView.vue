@@ -163,7 +163,7 @@ useSeo({
 
 <template>
   <div class="page-shell">
-    <div class="container" style="max-width: 940px">
+    <div class="container">
       <div class="breadcrumb">
         <router-link to="/">Inicio</router-link>
         <q-icon name="chevron_right" size="14px" />

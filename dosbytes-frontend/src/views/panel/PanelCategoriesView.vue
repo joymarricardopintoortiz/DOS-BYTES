@@ -246,7 +246,7 @@ useSeo({ title: 'Categorías' })
       <q-btn unelevated no-caps color="primary" icon="add" label="Nueva categoría" @click="openCreate" />
     </EmptyState>
 
-    <q-dialog v-model="dialog">
+    <q-dialog v-model="dialog" persistent>
       <q-card style="width: min(620px, 94vw); max-height: 92vh">
         <q-card-section class="row items-center justify-between q-pb-sm">
           <div class="text-h6 text-weight-bold">

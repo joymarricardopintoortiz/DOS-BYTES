@@ -9,6 +9,7 @@ import { useConfirm } from '../../composables/useConfirm'
 import { useSeo } from '../../composables/useSeo'
 import PaginationBar from '../../components/common/PaginationBar.vue'
 import ImageManager from '../../components/panel/ImageManager.vue'
+import StagedImageUpload from '../../components/panel/StagedImageUpload.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -25,6 +26,9 @@ const formRef = ref(null)
 const editing = ref(null)
 const form = ref(emptyForm())
 const saving = ref(false)
+// Fotos elegidas en "Nuevo producto" antes de guardar: se suben justo después
+// de crear el producto (ImageManager necesita el _id para subir al servidor).
+const stagedImages = ref([])
 
 const stockDialog = ref(false)
 const stockTarget = ref(null)
@@ -171,9 +175,15 @@ function syncForm(product) {
   }
 }
 
+function clearStagedImages() {
+  stagedImages.value.forEach((item) => item.preview && URL.revokeObjectURL(item.preview))
+  stagedImages.value = []
+}
+
 function openCreate() {
   editing.value = null
   form.value = emptyForm()
+  clearStagedImages()
   if (categories.value.length === 1) form.value.category = categories.value[0]._id
   dialog.value = true
 }
@@ -187,11 +197,20 @@ function openEdit(product) {
 function resetDialog() {
   editing.value = null
   form.value = emptyForm()
+  clearStagedImages()
 }
 
 async function saveProduct() {
   const valid = await formRef.value?.validate()
   if (!valid) return
+
+  const isNew = !editing.value?._id
+
+  // La galería es obligatoria al crear: sin al menos una foto no se guarda.
+  if (isNew && !stagedImages.value.length) {
+    notifyError(null, 'Agrega al menos una fotografía: la galería es obligatoria')
+    return
+  }
 
   const payload = {
     name: form.value.name.trim(),
@@ -210,15 +229,35 @@ async function saveProduct() {
 
   saving.value = true
   try {
-    const isNew = !editing.value?._id
     const response = isNew
       ? await productsApi.create(payload)
       : await productsApi.update(editing.value._id, payload)
-    const product = response.data.product
+    let product = response.data.product
+    let uploadFailed = false
+
+    // Fotos elegidas antes de crear: se suben apenas existe el producto y el
+    // diálogo pasa a modo edición con la galería real (ImageManager) visible.
+    if (isNew && stagedImages.value.length) {
+      try {
+        const imagesResponse = await productsApi.addImages(
+          product._id,
+          stagedImages.value.map((item) => item.file)
+        )
+        product = imagesResponse.data.product
+      } catch (uploadError) {
+        uploadFailed = true
+        notifyError(
+          uploadError,
+          'El producto se creó, pero no se pudieron subir las fotos. Usa "Agregar fotos" para reintentar.'
+        )
+      }
+    }
+
     editing.value = product
     syncForm(product)
+    clearStagedImages()
     await load()
-    notifySuccess(isNew ? 'Producto creado' : 'Producto guardado')
+    if (!uploadFailed) notifySuccess(isNew ? 'Producto creado' : 'Producto guardado')
   } catch (error) {
     notifyError(error, 'No se pudo guardar el producto')
   } finally {
@@ -507,7 +546,7 @@ useSeo({ title: 'Productos' })
       </div>
     </q-card>
 
-    <q-dialog v-model="dialog" @hide="resetDialog">
+    <q-dialog v-model="dialog" persistent @hide="resetDialog">
       <q-card style="width: min(900px, 96vw); max-height: 94vh">
         <q-card-section class="row items-center justify-between q-pb-sm">
           <div>
@@ -629,13 +668,8 @@ useSeo({ title: 'Productos' })
 
             <q-separator class="q-my-lg" />
 
-            <template v-if="editing?._id">
-              <ImageManager :product="editing" @updated="onImagesUpdated" />
-            </template>
-            <div v-else class="soft-card q-pa-md text-body2 text-grey-7">
-              <q-icon name="photo_library" size="20px" class="q-mr-xs" />
-              Guarda el producto para poder subir sus fotografías.
-            </div>
+            <ImageManager v-if="editing?._id" :product="editing" @updated="onImagesUpdated" />
+            <StagedImageUpload v-else v-model="stagedImages" />
 
             <div class="row justify-between items-center q-gutter-sm q-mt-lg">
               <q-btn
