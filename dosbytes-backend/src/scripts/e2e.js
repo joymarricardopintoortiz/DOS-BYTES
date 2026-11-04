@@ -39,7 +39,7 @@ const ids = {
 };
 
 let failures = 0;
-const created = { productCode: null, serviceCode: null, orderCode: null };
+const created = { productCode: null, serviceCode: null, orderCode: null, checkoutOrderCode: null, freeOrderCode: null };
 
 const request = async (method, path, { token, body } = {}) => {
   const response = await fetch(`${baseUrl}${path}`, {
@@ -348,6 +348,105 @@ const run = async () => {
 
   const sold = await request('GET', `/api/products/code/${productCode}`);
   check('contador de vendidos', sold.data?.data?.product?.soldCount === 2);
+
+  section('Checkout: envío, pago y aviso al equipo');
+  const shippingInfo = await request('GET', '/api/shipping');
+  check(
+    'tarifas de envío públicas',
+    shippingInfo.status === 200 && shippingInfo.data?.data?.departments?.length === 33
+  );
+
+  const checkoutCreate = await request('POST', '/api/orders', {
+    token: customerToken,
+    body: {
+      items: [{ product: product._id, quantity: 2 }],
+      shipping: {
+        department: 'Antioquia',
+        city: 'Medellín',
+        address: 'Cra 43 # 55-10, El Poblado',
+      },
+      contact: { email: customerEmail, phone: '3005551212' },
+      paymentMethod: 'tarjeta',
+      payment: {
+        cardNumber: '4111 1111 1111 1111',
+        cardName: 'QA Cliente',
+        expiry: '12/30',
+        cvv: '123',
+      },
+      pickupNotes: 'Entregar en recepción',
+    },
+  });
+  check(
+    'pedido con checkout',
+    checkoutCreate.status === 201,
+    `status ${checkoutCreate.status} -> ${JSON.stringify(
+      checkoutCreate.data?.errors || checkoutCreate.data?.message
+    )}`
+  );
+  const checkoutOrder = checkoutCreate.data?.data?.order;
+  created.checkoutOrderCode = checkoutOrder?.code;
+  check('subtotal sin envío', checkoutOrder?.subtotal === 20000);
+  check('envío de Antioquia aplicado', checkoutOrder?.shipping?.cost === 12000);
+  check('total = subtotal + envío', checkoutOrder?.total === 32000);
+  check('método de pago guardado', checkoutOrder?.paymentMethod === 'tarjeta');
+  check(
+    'tarjeta enmascarada',
+    checkoutOrder?.paymentDetail === 'Tarjeta **** 1111' &&
+      !JSON.stringify(checkoutOrder).includes('4111111111111111')
+  );
+  check(
+    'dirección y contacto guardados',
+    String(checkoutOrder?.shipping?.address || '').includes('El Poblado') &&
+      checkoutOrder?.contact?.phone === '3005551212'
+  );
+
+  const bogotaOrder = await request('POST', '/api/orders', {
+    token: customerToken,
+    body: {
+      items: [{ product: product._id, quantity: 1 }],
+      shipping: { department: 'Bogotá D.C.', city: 'Bogotá', address: 'Calle 12 # 34-56' },
+      contact: { email: customerEmail, phone: '3005551212' },
+      paymentMethod: 'efectivo',
+    },
+  });
+  const freeOrder = bogotaOrder.data?.data?.order;
+  check(
+    'pedido con envío de Bogotá (franja centro)',
+    bogotaOrder.status === 201 && freeOrder?.shipping?.cost === 8000 && freeOrder?.total === 18000,
+    `status ${bogotaOrder.status} -> ${JSON.stringify(bogotaOrder.data?.message)}`
+  );
+  created.freeOrderCode = freeOrder?.code;
+
+  const badDepartment = await request('POST', '/api/orders', {
+    token: customerToken,
+    body: {
+      items: [{ product: product._id, quantity: 1 }],
+      shipping: { department: 'Atlántida', city: 'X', address: 'Calle 1 # 2-3' },
+      contact: { email: customerEmail, phone: '3005551212' },
+      paymentMethod: 'efectivo',
+    },
+  });
+  check(
+    'departamento inválido rechazado',
+    badDepartment.status === 400 || badDepartment.status === 422,
+    `status ${badDepartment.status}`
+  );
+
+  const newCount = await request('GET', '/api/orders/new-count', { token: adminToken });
+  check(
+    'contador de pedidos nuevos para el panel',
+    newCount.status === 200 && newCount.data?.data?.count >= 1,
+    `status ${newCount.status}`
+  );
+
+  // Se cierran para que el cliente pueda eliminar su cuenta al final.
+  for (const code of [created.checkoutOrderCode, created.freeOrderCode]) {
+    if (!code) continue;
+    await request('PATCH', `/api/orders/${code}/cancel`, {
+      token: customerToken,
+      body: { note: 'Prueba e2e' },
+    });
+  }
 
   section('Empleados y permisos');
   const employeeCreate = await request('POST', '/api/users/employees', {

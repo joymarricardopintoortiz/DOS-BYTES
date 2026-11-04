@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { statsApi } from '../../api/client'
+import { ordersApi, statsApi } from '../../api/client'
 import { useAuthStore } from '../../stores/auth'
 import { SERVICE_ORDER_STATUS } from '../../utils/constants'
 import { formatCurrency } from '../../utils/format'
@@ -14,6 +14,8 @@ const auth = useAuthStore()
 const stats = ref(null)
 const loading = ref(true)
 const error = ref('')
+// Pedidos confirmados en las últimas 24 horas (aviso para el equipo).
+const newOrders = ref(0)
 
 const statusRows = computed(() => {
   const rows = stats.value?.serviceOrdersByStatus || []
@@ -44,7 +46,7 @@ const quickLinks = computed(() => {
     {
       label: 'Pedidos',
       icon: 'receipt_long',
-      text: 'Reservas de clientes y entregas.',
+      text: 'Compras de clientes y entregas.',
       to: '/panel/pedidos',
     },
     {
@@ -95,8 +97,12 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
-    const response = await statsApi.get()
-    stats.value = response.data
+    const [statsResponse, newOrdersResponse] = await Promise.all([
+      statsApi.get(),
+      ordersApi.newCount().catch(() => ({ data: { count: 0 } })),
+    ])
+    stats.value = statsResponse.data
+    newOrders.value = Number(newOrdersResponse.data?.count) || 0
   } catch (err) {
     error.value = err.message || 'No se pudieron cargar las estadísticas'
     notifyError(err, 'No se pudieron cargar las estadísticas')
@@ -161,6 +167,14 @@ useSeo({
 
     <template v-else-if="stats">
       <div class="stat-grid">
+        <StatCard
+          v-if="newOrders > 0"
+          label="Pedidos nuevos"
+          :value="newOrders"
+          icon="notifications_active"
+          color="negative"
+          hint="Confirmados en las últimas 24 h"
+        />
         <StatCard
           label="Órdenes de servicio activas"
           :value="stats.pendingServiceOrders"

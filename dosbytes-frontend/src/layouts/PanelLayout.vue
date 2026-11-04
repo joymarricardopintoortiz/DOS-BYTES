@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import Logo from '../components/common/Logo.vue'
+import { ordersApi } from '../api/client'
 import { useAuthStore } from '../stores/auth'
 import { useSiteStore } from '../stores/site'
 import { notifySuccess } from '../utils/notify'
@@ -13,6 +14,18 @@ const $q = useQuasar()
 const auth = useAuthStore()
 const site = useSiteStore()
 const drawer = ref(false)
+
+// Aviso de pedidos nuevos (últimas 24 h) en el menú del panel.
+const newOrders = ref(0)
+
+async function loadNewOrders() {
+  try {
+    const response = await ordersApi.newCount()
+    newOrders.value = Number(response.data?.count) || 0
+  } catch {
+    newOrders.value = 0
+  }
+}
 
 const initials = computed(() => {
   const name = auth.user?.name || ''
@@ -32,7 +45,7 @@ const navGroups = computed(() => [
     items: [
       { label: 'Resumen', icon: 'dashboard', to: '/panel', exact: true },
       { label: 'Órdenes de servicio', icon: 'build_circle', to: '/panel/ordenes' },
-      { label: 'Pedidos', icon: 'receipt_long', to: '/panel/pedidos' },
+      { label: 'Pedidos', icon: 'receipt_long', to: '/panel/pedidos', badge: newOrders.value },
     ],
   },
   {
@@ -84,7 +97,17 @@ async function logout() {
 
 onMounted(() => {
   site.load().catch(() => {})
+  loadNewOrders()
 })
+
+// Se refresca al navegar dentro del panel: si llega un pedido, el contador
+// se actualiza sin recargar la página.
+watch(
+  () => route.path,
+  (path) => {
+    if (path.startsWith('/panel')) loadNewOrders()
+  }
+)
 </script>
 
 <template>
@@ -161,6 +184,9 @@ onMounted(() => {
             >
               <q-item-section avatar><q-icon :name="item.icon" /></q-item-section>
               <q-item-section>{{ item.label }}</q-item-section>
+              <q-item-section v-if="item.badge" side>
+                <q-badge color="negative" rounded>{{ item.badge }}</q-badge>
+              </q-item-section>
             </q-item>
           </q-list>
         </div>

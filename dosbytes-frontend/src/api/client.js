@@ -213,6 +213,7 @@ export const serviceOrdersApi = {
 export const ordersApi = {
   create: (body) => postJson('/orders', body),
   mine: (query) => request('/orders/me', { query }),
+  newCount: () => request('/orders/new-count'),
   list: (query) => request('/orders', { query }),
   getByCode: (code) => request(`/orders/${encodeURIComponent(code)}`),
   cancel: (code, body) => request(`/orders/${encodeURIComponent(code)}/cancel`, {
@@ -258,6 +259,11 @@ export const usersApi = {
 
 export const statsApi = {
   get: () => request('/stats'),
+}
+
+// Tarifas de envío: departamentos y franjas (fuente única en el servidor).
+export const shippingApi = {
+  get: () => request('/shipping'),
 }
 
 export const uploadsApi = {

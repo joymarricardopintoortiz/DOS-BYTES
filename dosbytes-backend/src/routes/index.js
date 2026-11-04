@@ -25,6 +25,7 @@ router.use('/products', require('./product.routes'));
 router.use('/services', require('./service.routes'));
 router.use('/service-orders', require('./serviceOrder.routes'));
 router.use('/orders', require('./order.routes'));
+router.use('/shipping', require('./shipping.routes'));
 router.use('/reviews', require('./review.routes'));
 router.use('/favorites', require('./favorite.routes'));
 router.use('/questions', require('./question.routes'));

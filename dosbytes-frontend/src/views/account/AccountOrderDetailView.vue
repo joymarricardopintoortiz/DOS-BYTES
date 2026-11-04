@@ -23,6 +23,21 @@ const canCancel = computed(
   () => order.value && ['reservado', 'listo'].includes(order.value.status)
 )
 
+const PAYMENT_LABELS = {
+  efectivo: 'Efectivo al recibir',
+  tarjeta: 'Tarjeta de débito/crédito',
+  cuenta_bancaria: 'Cuenta bancaria',
+  tienda: 'Pago en tienda al recoger',
+}
+
+function paymentLabel(value) {
+  return PAYMENT_LABELS[value?.paymentMethod] || 'Pago en tienda al recoger'
+}
+
+function hasShipping(value) {
+  return Boolean(value?.shipping?.address)
+}
+
 const history = computed(() => {
   const items = order.value?.history || []
   return [...items].sort((a, b) => new Date(a.at) - new Date(b.at))
@@ -150,12 +165,44 @@ useSeo(() => ({
                 </div>
               </div>
 
+              <div class="summary-row">
+                <span>Productos</span>
+                <span>{{ formatCurrency(order.subtotal || order.total) }}</span>
+              </div>
+              <div class="summary-row">
+                <span>Envío</span>
+                <span v-if="order.shipping?.cost" class="text-weight-bold">
+                  {{ formatCurrency(order.shipping.cost) }}
+                </span>
+                <span v-else class="text-positive text-weight-bold">Gratis</span>
+              </div>
               <div class="summary-row summary-total">
                 <span>Total</span>
                 <span>{{ formatCurrency(order.total) }}</span>
               </div>
               <div class="text-caption text-grey-7 q-mt-sm">
-                Pago en tienda al recoger. No se realizan cobros en línea.
+                {{ paymentLabel(order) }}
+                <template v-if="order.paymentDetail"> · {{ order.paymentDetail }}</template>
+                <template v-else>. No se realizan cobros en línea.</template>
+              </div>
+            </q-card-section>
+          </q-card>
+
+          <q-card flat bordered class="q-mt-md">
+            <q-card-section>
+              <div class="text-subtitle1 text-weight-bold q-mb-sm">Entrega</div>
+              <div v-if="hasShipping(order)">
+                <div class="text-body2">{{ order.shipping.address }}</div>
+                <div class="text-body2">
+                  {{ order.shipping.city }}, {{ order.shipping.department }}
+                </div>
+                <div class="text-caption text-grey-7 q-mt-xs">
+                  {{ order.contact?.email || order.customer?.email || 'Sin correo' }} ·
+                  {{ order.contact?.phone || order.customer?.phone || 'Sin teléfono' }}
+                </div>
+              </div>
+              <div v-else class="text-body2 text-grey-7">
+                Retiro en el local. Te avisamos cuando tu pedido esté listo.
               </div>
             </q-card-section>
           </q-card>
@@ -186,7 +233,7 @@ useSeo(() => ({
 
           <q-card flat bordered>
             <q-card-section>
-              <div class="text-subtitle1 text-weight-bold q-mb-sm">Datos de retiro</div>
+              <div class="text-subtitle1 text-weight-bold q-mb-sm">Datos del pedido</div>
               <div class="meta-list">
                 <div>
                   <span>Código</span>
@@ -207,7 +254,8 @@ useSeo(() => ({
               </div>
               <q-separator class="q-my-md" />
               <div class="text-caption text-grey-7">
-                Presenta este código en la tienda para reclamar tu pedido.
+                Guarda este código: con él puedes consultar tu pedido o reclamarlo en la
+                tienda.
               </div>
               <q-btn
                 outline

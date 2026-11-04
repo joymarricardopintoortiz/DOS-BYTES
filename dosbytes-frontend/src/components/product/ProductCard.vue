@@ -41,6 +41,23 @@ function addToCart() {
   }
 }
 
+// Compra directa desde el catálogo: agrega y va al checkout.
+function buyNow() {
+  if (auth.isStaff) {
+    notifyInfo('Las compras son exclusivas de las cuentas de cliente.')
+    return
+  }
+  if (!auth.isAuthenticated) {
+    notifyInfo('Inicia sesión para comprar este producto.')
+    router.push({ name: 'login', query: { redirect: route.fullPath } })
+    return
+  }
+  if (!inStock.value) return
+  if (cart.add(props.product, 1)) {
+    router.push({ name: 'checkout' })
+  }
+}
+
 async function toggleFavorite() {
   if (!auth.isAuthenticated) {
     router.push({ name: 'login', query: { redirect: route.fullPath } })
@@ -108,21 +125,33 @@ async function toggleFavorite() {
         <span class="stock-text" :class="inStock ? 'in' : 'out'">
           {{ inStock ? `${product.stock} disponibles` : 'Agotado' }}
         </span>
-        <q-btn
-          v-if="!auth.isStaff"
-          round
-          dense
-          unelevated
-          color="primary"
-          icon="add_shopping_cart"
-          :disable="!inStock"
-          aria-label="Agregar al carrito"
-          @click.stop.prevent="addToCart"
-        >
-          <q-tooltip>
-            {{ auth.isAuthenticated ? 'Agregar al carrito' : 'Inicia sesión para agregar al carrito' }}
-          </q-tooltip>
-        </q-btn>
+        <div class="product-foot-actions">
+          <q-btn
+            v-if="!auth.isStaff"
+            dense
+            no-caps
+            unelevated
+            color="primary"
+            label="Comprar"
+            :disable="!inStock"
+            @click.stop.prevent="buyNow"
+          />
+          <q-btn
+            v-if="!auth.isStaff"
+            round
+            dense
+            outline
+            color="primary"
+            icon="add_shopping_cart"
+            :disable="!inStock"
+            aria-label="Agregar al carrito"
+            @click.stop.prevent="addToCart"
+          >
+            <q-tooltip>
+              {{ auth.isAuthenticated ? 'Agregar al carrito' : 'Inicia sesión para agregar al carrito' }}
+            </q-tooltip>
+          </q-btn>
+        </div>
       </div>
     </div>
   </article>

@@ -345,7 +345,7 @@ img {
 }
 
 .header-user-btn {
-  max-width: 190px;
+  max-width: 240px;
 }
 
 .header-user-btn .q-btn__content {
@@ -353,7 +353,7 @@ img {
 }
 
 .header-user-name {
-  max-width: 120px;
+  max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -789,6 +789,14 @@ img {
   gap: 8px;
   margin-top: auto;
   padding-top: 4px;
+  flex-wrap: wrap;
+}
+
+.product-foot-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
 }
 
 .stock-text {
@@ -988,6 +996,11 @@ img {
   display: flex;
   gap: 10px;
   margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.buy-actions .q-btn {
+  flex: 1 1 auto;
 }
 
 .quantity-row {
@@ -1175,6 +1188,108 @@ img {
   color: var(--db-primary);
   font-size: 1.2rem;
   font-weight: 900;
+}
+
+/* ==========================================================================
+   CHECKOUT (finalizar compra)
+   ========================================================================== */
+.checkout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: start;
+}
+
+.checkout-form {
+  max-width: 780px;
+}
+
+.checkout-thumb {
+  width: 92px;
+  height: 92px;
+  object-fit: contain;
+  border: 1px solid var(--db-line);
+  border-radius: 10px;
+  background: #fff;
+  flex: 0 0 auto;
+}
+
+.checkout-thumb-sm {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border: 1px solid var(--db-line);
+  border-radius: 8px;
+  background: #fff;
+  margin-right: 10px;
+  flex: 0 0 auto;
+}
+
+/* Los detalles del producto se muestran completos pero sin desbordar la tarjeta */
+.checkout-details {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.receipt-line {
+  align-items: center;
+}
+
+/* Métodos de pago como tarjetas seleccionables */
+.pay-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.pay-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--db-line);
+  border-radius: var(--db-radius);
+  background: var(--db-surface);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.pay-option:hover {
+  border-color: #c3d3ea;
+  background: #f7faff;
+}
+
+.pay-option:focus-within {
+  outline: 2px solid var(--db-primary-100);
+  outline-offset: 2px;
+}
+
+.pay-option--active {
+  border-color: var(--db-primary);
+  background: var(--db-primary-100);
+  box-shadow: inset 0 0 0 1px var(--db-primary);
+}
+
+.pay-option-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Línea de resumen de la página (mismo criterio que el carrito) */
+@media (max-width: 900px) {
+  .checkout-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Línea de tiempo (estado de la reparación) */

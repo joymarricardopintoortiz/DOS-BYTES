@@ -184,16 +184,50 @@ const templates = {
     text: `Tu equipo de la orden ${code} está listo para entrega.`,
   }),
 
-  orderReceived: ({ name, code, total, items }) => ({
-    subject: `Reserva registrada ${code}`,
+  orderReceived: ({ name, code, total, items, paymentLabel, shipping }) => ({
+    subject: `Pedido confirmado ${code}`,
     html: layout(
-      'Tu pedido quedó reservado',
+      'Tu pedido quedó confirmado',
       `<p>Hola ${escapeHtml(name)},</p>
        <p>Registramos tu pedido <strong>${escapeHtml(code)}</strong> por un total de <strong>$${Number(total).toLocaleString('es-CO')} COP</strong>.</p>
        <p>${items.map((item) => `${escapeHtml(item.name)} x${item.quantity}`).join('<br />')}</p>
-       <p>El pago se realiza en el local al recoger los productos.</p>`
+       <p><strong>Pago:</strong> ${escapeHtml(paymentLabel || 'Pago en tienda')}<br />
+          <strong>Envío:</strong> ${
+            shipping && shipping.address
+              ? `${escapeHtml(shipping.address)}, ${escapeHtml(shipping.city)} (${escapeHtml(
+                  shipping.department
+                )}) · $${Number(shipping.cost || 0).toLocaleString('es-CO')}`
+              : 'Retiro en el local'
+          }</p>`
     ),
-    text: `Pedido ${code} reservado por $${total} COP. Pago en tienda.`,
+    text: `Pedido ${code} confirmado por $${total} COP.`,
+  }),
+
+  orderCreatedStaff: ({ code, total, customer, items, paymentLabel, paymentDetail, shipping, contact }) => ({
+    subject: `Nuevo pedido ${code} · $${Number(total).toLocaleString('es-CO')} COP`,
+    html: layout(
+      'Nuevo pedido en la tienda',
+      `<p>Se confirmó un pedido nuevo desde el sitio.</p>
+       <p><strong>Código:</strong> ${escapeHtml(code)}<br />
+          <strong>Cliente:</strong> ${escapeHtml(customer)}<br />
+          <strong>Total:</strong> $${Number(total).toLocaleString('es-CO')} COP<br />
+          <strong>Pago:</strong> ${escapeHtml(paymentLabel || 'Pago en tienda')}${
+            paymentDetail ? ` (${escapeHtml(paymentDetail)})` : ''
+          }</p>
+       <p>${items.map((item) => `${escapeHtml(item.name)} x${item.quantity}`).join('<br />')}</p>
+       <p><strong>Entrega:</strong> ${
+         shipping && shipping.address
+           ? `${escapeHtml(shipping.address)}, ${escapeHtml(shipping.city)} (${escapeHtml(
+               shipping.department
+             )}) · envío $${Number(shipping.cost || 0).toLocaleString('es-CO')}`
+           : 'Retiro en el local'
+       }<br />
+          <strong>Contacto:</strong> ${escapeHtml((contact && contact.email) || '')} · ${escapeHtml(
+        (contact && contact.phone) || ''
+      )}</p>
+       ${button(`${env.clientUrl}/panel/pedidos`, 'Ver pedido en el panel')}`
+    ),
+    text: `Nuevo pedido ${code} de ${customer} por $${total} COP (${paymentLabel}).`,
   }),
 
   orderReady: ({ name, code }) => ({

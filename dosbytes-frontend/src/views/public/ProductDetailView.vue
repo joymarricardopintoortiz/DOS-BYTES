@@ -99,6 +99,23 @@ function addToCart() {
   }
 }
 
+// Compra directa: agrega el producto y salta al checkout sin pasar por el carrito.
+function buyNow() {
+  if (auth.isStaff) {
+    notifyInfo('Las compras son exclusivas de las cuentas de cliente.')
+    return
+  }
+  if (!auth.isAuthenticated) {
+    notifyInfo('Inicia sesión para comprar este producto.')
+    router.push({ name: 'login', query: { redirect: route.fullPath } })
+    return
+  }
+  if (!inStock.value) return
+  if (cart.add(product.value, quantity.value)) {
+    router.push({ name: 'checkout' })
+  }
+}
+
 async function toggleFavorite() {
   if (!auth.isAuthenticated) {
     router.push({ name: 'login', query: { redirect: route.fullPath } })
@@ -271,9 +288,18 @@ onMounted(load)
                   unelevated
                   no-caps
                   color="primary"
+                  icon="shopping_cart_checkout"
+                  label="Comprar ahora"
+                  class="col"
+                  :disable="!inStock"
+                  @click="buyNow"
+                />
+                <q-btn
+                  outline
+                  no-caps
+                  color="primary"
                   icon="add_shopping_cart"
                   label="Agregar al carrito"
-                  class="col"
                   :disable="!inStock"
                   @click="addToCart"
                 />

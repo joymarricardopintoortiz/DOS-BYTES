@@ -89,6 +89,12 @@ const routes = [
         meta: { title: 'Carrito de compras' },
       },
       {
+        path: 'checkout',
+        name: 'checkout',
+        component: () => import('../views/account/CheckoutView.vue'),
+        meta: { requiresAuth: true, roles: ['customer'], title: 'Finalizar compra' },
+      },
+      {
         path: 'mi-cuenta',
         component: AccountLayout,
         meta: { requiresAuth: true, roles: ['customer'] },

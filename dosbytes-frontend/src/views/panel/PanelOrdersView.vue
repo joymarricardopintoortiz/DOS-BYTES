@@ -59,6 +59,21 @@ const columns = [
   { name: 'actions', label: '', field: 'actions', align: 'right' },
 ]
 
+const PAYMENT_LABELS = {
+  efectivo: 'Efectivo',
+  tarjeta: 'Tarjeta de débito/crédito',
+  cuenta_bancaria: 'Cuenta bancaria',
+  tienda: 'Pago en tienda',
+}
+
+function paymentLabel(order) {
+  return PAYMENT_LABELS[order?.paymentMethod] || 'Pago en tienda'
+}
+
+function hasShipping(order) {
+  return Boolean(order?.shipping?.address)
+}
+
 function currentPage() {
   return Math.max(1, Number(route.query.page) || 1)
 }
@@ -361,6 +376,39 @@ useSeo({ title: 'Pedidos' })
               <StatusBadge :status="detail.status" type="order" />
             </div>
 
+            <div class="text-weight-bold q-mb-sm">Entrega y pago</div>
+            <div class="soft-card q-pa-md q-mb-md">
+              <div class="row q-col-gutter-md">
+                <div class="col-12 col-sm-6">
+                  <div class="text-caption text-grey-7">Envío</div>
+                  <div v-if="hasShipping(detail)" class="text-body2">
+                    {{ detail.shipping.address }}<br />
+                    {{ detail.shipping.city }}, {{ detail.shipping.department }}
+                  </div>
+                  <div v-else class="text-body2">Retiro en el local</div>
+                  <div class="text-caption text-grey-7 q-mt-xs">
+                    Costo:
+                    <strong>
+                      {{ detail.shipping?.cost ? formatCurrency(detail.shipping.cost) : 'Gratis' }}
+                    </strong>
+                  </div>
+                </div>
+                <div class="col-12 col-sm-6">
+                  <div class="text-caption text-grey-7">Contacto</div>
+                  <div class="text-body2">
+                    {{ detail.contact?.email || detail.customer?.email || 'Sin correo' }}
+                  </div>
+                  <div class="text-body2">
+                    {{ detail.contact?.phone || detail.customer?.phone || 'Sin teléfono' }}
+                  </div>
+                  <div class="text-caption text-grey-7 q-mt-xs">
+                    Pago: <strong>{{ paymentLabel(detail) }}</strong>
+                    <template v-if="detail.paymentDetail"> · {{ detail.paymentDetail }}</template>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="text-weight-bold q-mb-sm">Productos</div>
             <div v-for="(item, index) in detail.items" :key="index" class="cart-line">
               <img :src="itemImage(item)" :alt="item.name" />
@@ -373,6 +421,17 @@ useSeo({ title: 'Pedidos' })
               <div class="text-right text-weight-bold">{{ formatCurrency(item.subtotal) }}</div>
             </div>
 
+            <div class="summary-row">
+              <span>Productos</span>
+              <span>{{ formatCurrency(detail.subtotal || detail.total) }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Envío</span>
+              <span v-if="detail.shipping?.cost" class="text-weight-bold">
+                {{ formatCurrency(detail.shipping.cost) }}
+              </span>
+              <span v-else class="text-positive text-weight-bold">Gratis</span>
+            </div>
             <div class="summary-row summary-total">
               <span>Total</span>
               <span>{{ formatCurrency(detail.total) }}</span>

@@ -23,6 +23,7 @@ router.post(
   controller.create
 );
 router.get('/me', authenticated, allowCustomer, controller.listMine);
+router.get('/new-count', authenticated, allowStaff, controller.newCount);
 router.get('/:code', authenticated, validators.codeParam, validate, controller.getByCode);
 router.patch(
   '/:code/cancel',

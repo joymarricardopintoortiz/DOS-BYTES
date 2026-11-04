@@ -2,18 +2,63 @@
 
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User');
+const SiteConfig = require('../models/SiteConfig');
 const ApiError = require('../utils/ApiError');
 const asyncHandler = require('../utils/asyncHandler');
 const { getPagination, buildMeta } = require('../utils/pagination');
 const { escapeRegex } = require('../utils/slugify');
 const { generateOrderCode } = require('../utils/tokens');
 const emailService = require('../services/email.service');
+const shippingService = require('../services/shipping');
+const { PAYMENT_METHODS } = require('../validators/order.validator');
 
 const TRANSITIONS = {
   reservado: ['listo', 'cancelado'],
   listo: ['entregado', 'cancelado'],
   entregado: [],
   cancelado: [],
+};
+
+const PAYMENT_LABELS = {
+  efectivo: 'Efectivo',
+  tarjeta: 'Tarjeta de débito/crédito',
+  cuenta_bancaria: 'Cuenta bancaria',
+  tienda: 'Pago en tienda',
+};
+
+// Referencia enmascarada: jamás se persiste el número completo ni el CVV.
+const buildPaymentDetail = (method, payment = {}) => {
+  if (method === 'tarjeta') {
+    const digits = String(payment.cardNumber || '').replace(/\D/g, '');
+    return digits ? `Tarjeta **** ${digits.slice(-4)}` : 'Tarjeta';
+  }
+  if (method === 'cuenta_bancaria') {
+    const digits = String(payment.account || '').replace(/\D/g, '');
+    const bank = String(payment.bank || '').trim();
+    return digits ? `${bank || 'Cuenta'} · cuenta **** ${digits.slice(-4)}` : bank || 'Cuenta bancaria';
+  }
+  if (method === 'efectivo') return 'Efectivo al recibir';
+  return '';
+};
+
+// Administradores configurados + empleados activos, sin duplicados.
+const staffRecipients = async () => {
+  try {
+    const [config, users] = await Promise.all([
+      SiteConfig.getConfig(),
+      User.find({ role: { $in: ['admin', 'employee'] }, active: true, isDeleted: false })
+        .select('email'),
+    ]);
+    const emails = [
+      ...(config.adminEmails || []),
+      config.employeeEmail,
+      ...users.map((user) => user.email),
+    ];
+    return [...new Set(emails.filter(Boolean).map((email) => email.toLowerCase()))];
+  } catch {
+    return [];
+  }
 };
 
 const isStaff = (user) => user && (user.role === 'employee' || user.role === 'admin');
@@ -39,9 +84,6 @@ const restoreStock = async (order) => {
   );
 };
 
-/**
- * RF-15: carrito con reserva para recoger y pago en tienda.
- */
 const create = asyncHandler(async (req, res) => {
   // Une productos repetidos antes de validar stock.
   const merged = new Map();
@@ -93,19 +135,44 @@ const create = asyncHandler(async (req, res) => {
       });
     }
 
-    const total = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+    const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+
+    // El envío se cotiza SIEMPRE en el servidor con la tabla fija de franjas:
+    // el total del navegador nunca es el que se guarda.
+    const department = String((req.body.shipping && req.body.shipping.department) || '').trim();
+    const shippingQuote = shippingService.quote(department, subtotal);
+    const paymentMethod = PAYMENT_METHODS.includes(req.body.paymentMethod)
+      ? req.body.paymentMethod
+      : 'tienda';
+    const paymentDetail = buildPaymentDetail(paymentMethod, req.body.payment);
+    const total = subtotal + shippingQuote.cost;
+
     const code = await generateUniqueCode();
 
     order = await Order.create({
       code,
       customer: req.user._id,
       items: orderItems,
+      subtotal,
       total,
       status: 'reservado',
-      paymentMethod: 'tienda',
+      paymentMethod,
+      paymentDetail,
+      shipping: {
+        department,
+        city: String((req.body.shipping && req.body.shipping.city) || '').trim(),
+        address: String((req.body.shipping && req.body.shipping.address) || '').trim(),
+        cost: shippingQuote.cost,
+      },
+      contact: {
+        email: String((req.body.contact && req.body.contact.email) || req.user.email)
+          .trim()
+          .toLowerCase(),
+        phone: String((req.body.contact && req.body.contact.phone) || '').trim(),
+      },
       pickupNotes: req.body.pickupNotes || '',
       stockApplied: true,
-      history: [{ status: 'reservado', note: 'Reserva creada por el cliente' }],
+      history: [{ status: 'reservado', note: 'Pedido confirmado por el cliente' }],
     });
   } catch (err) {
     // Rollback si algo falla a mitad de camino.
@@ -120,17 +187,41 @@ const create = asyncHandler(async (req, res) => {
     throw err;
   }
 
-  const tpl = emailService.templates.orderReceived({
-    name: req.user.name,
-    code: order.code,
-    total: order.total,
-    items: order.items,
-  });
-  await emailService.send({ to: req.user.email, ...tpl });
+  // Correo al cliente y aviso al equipo en paralelo: ninguno de los dos debe
+  // demorar ni romper la confirmación del pedido.
+  const staffTo = await staffRecipients();
+  await Promise.allSettled([
+    emailService.send({
+      to: req.user.email,
+      ...emailService.templates.orderReceived({
+        name: req.user.name,
+        code: order.code,
+        total: order.total,
+        items: order.items,
+        paymentLabel: PAYMENT_LABELS[order.paymentMethod] || 'Pago en tienda',
+        shipping: order.shipping,
+      }),
+    }),
+    staffTo.length
+      ? emailService.send({
+          to: staffTo,
+          ...emailService.templates.orderCreatedStaff({
+            code: order.code,
+            total: order.total,
+            customer: req.user.name,
+            items: order.items,
+            paymentLabel: PAYMENT_LABELS[order.paymentMethod] || 'Pago en tienda',
+            paymentDetail: order.paymentDetail,
+            shipping: order.shipping,
+            contact: order.contact,
+          }),
+        })
+      : Promise.resolve(),
+  ]);
 
   res.status(201).json({
     ok: true,
-    message: `Reserva creada con el código ${order.code}. El pago se realiza en el local.`,
+    message: `Pedido ${order.code} confirmado.`,
     data: { order },
   });
 });
@@ -288,6 +379,18 @@ const changeStatus = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * Aviso para el panel: pedidos nuevos de las últimas 24 horas.
+ */
+const newCount = asyncHandler(async (_req, res) => {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const count = await Order.countDocuments({
+    status: 'reservado',
+    createdAt: { $gte: since },
+  });
+  res.json({ ok: true, data: { count } });
+});
+
 module.exports = {
   create,
   listMine,
@@ -295,4 +398,5 @@ module.exports = {
   cancel,
   listStaff,
   changeStatus,
+  newCount,
 };

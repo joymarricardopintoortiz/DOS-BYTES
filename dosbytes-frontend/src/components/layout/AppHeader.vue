@@ -113,7 +113,7 @@ watch(() => auth.role, (role) => {
               flat
               no-caps
               class="header-user-btn"
-              :label="auth.displayName"
+              toggle-aria-label="Menú de mi cuenta"
             >
               <template #label>
                 <q-avatar size="30px" color="primary" text-color="white" class="q-mr-sm">

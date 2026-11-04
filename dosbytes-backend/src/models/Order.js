@@ -26,14 +26,44 @@ const orderHistorySchema = new mongoose.Schema(
   { _id: false }
 );
 
+const orderShippingSchema = new mongoose.Schema(
+  {
+    department: { type: String, trim: true, maxlength: 60, default: '' },
+    city: { type: String, trim: true, maxlength: 80, default: '' },
+    address: { type: String, trim: true, maxlength: 240, default: '' },
+    cost: { type: Number, min: 0, default: 0 },
+  },
+  { _id: false }
+);
+
+const orderContactSchema = new mongoose.Schema(
+  {
+    email: { type: String, trim: true, lowercase: true, maxlength: 160, default: '' },
+    phone: { type: String, trim: true, maxlength: 30, default: '' },
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     code: { type: String, required: true, unique: true, uppercase: true, trim: true, index: true },
     customer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     items: { type: [orderItemSchema], default: [] },
+    subtotal: { type: Number, min: 0, default: 0 },
     total: { type: Number, required: true, min: 0 },
     status: { type: String, enum: ORDER_STATUSES, default: 'reservado', index: true },
-    paymentMethod: { type: String, enum: ['tienda'], default: 'tienda' },
+    // tienda: reservas antiguas (pago al recoger). Los nuevos checkout envían
+    // efectivo / tarjeta / cuenta_bancaria y se cobra según el flujo del local.
+    paymentMethod: {
+      type: String,
+      enum: ['tienda', 'efectivo', 'tarjeta', 'cuenta_bancaria'],
+      default: 'tienda',
+    },
+    // Referencia enmascarada (ej. "Tarjeta **** 4321"): nunca se guarda el
+    // número completo ni el CVV.
+    paymentDetail: { type: String, trim: true, maxlength: 120, default: '' },
+    shipping: { type: orderShippingSchema, default: () => ({}) },
+    contact: { type: orderContactSchema, default: () => ({}) },
     pickupNotes: { type: String, trim: true, maxlength: 500, default: '' },
 
     stockApplied: { type: Boolean, default: true },
