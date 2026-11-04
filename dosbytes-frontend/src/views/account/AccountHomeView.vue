@@ -182,12 +182,12 @@ onMounted(() => {
       <StatCard label="Opiniones" :value="counts.reviews" icon="star" color="warning" :hint="loadingCounts ? 'Cargando…' : 'Publicadas'" />
     </div>
 
-    <div class="row q-col-gutter-md q-mb-lg">
-      <div v-for="link in quickLinks" :key="link.to" class="col-12 col-sm-6 col-md-4">
-        <router-link :to="link.to" class="surface-card q-pa-md row items-start q-gutter-md fit">
+    <div class="quicklinks q-mb-lg">
+      <div v-for="link in quickLinks" :key="link.to" class="quicklink-item">
+        <router-link :to="link.to" class="surface-card quicklink-card">
           <div class="stat-icon"><q-icon :name="link.icon" /></div>
-          <div style="min-width: 0">
-            <div class="row items-center q-gutter-sm">
+          <div class="quicklink-body">
+            <div class="quicklink-title">
               <span class="text-weight-bold">{{ link.label }}</span>
               <q-badge v-if="link.badge" color="secondary" text-color="primary">
                 {{ link.badge }}
@@ -202,7 +202,7 @@ onMounted(() => {
     <q-card flat bordered class="q-mb-lg">
       <q-card-section>
         <div class="text-subtitle1 text-weight-bold q-mb-md">Datos personales</div>
-        <q-form @submit.prevent="saveProfile">
+        <q-form class="profile-form" @submit.prevent="saveProfile">
           <div class="row q-col-gutter-md">
             <div class="col-12 col-sm-6">
               <q-input v-model="profileForm.name" outlined label="Nombre completo" maxlength="120">

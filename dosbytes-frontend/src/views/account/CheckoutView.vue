@@ -15,6 +15,10 @@ const auth = useAuthStore()
 const cart = useCartStore()
 
 const step = ref(1)
+
+// Títulos de los pasos: en móvil los títulos del stepper se ocultan para que
+// quepan los 4 pasos, y este texto muestra en qué paso se está.
+const stepTitles = { 1: 'Resumen', 2: 'Datos de entrega', 3: 'Pago', 4: 'Confirmar' }
 const loadingRates = ref(true)
 const rates = ref({ departments: [], zones: [], freeShippingMin: 150000 })
 
@@ -211,50 +215,69 @@ useSeo({
       </div>
 
       <!-- ======== Confirmación ======== -->
-      <q-card v-if="createdOrder" flat bordered class="q-pa-lg text-center">
-        <q-icon name="check_circle" color="positive" size="58px" />
-        <h1 class="title-lg q-mt-md">Pedido confirmado</h1>
-        <p class="text-body2 text-grey-7">
-          Recibirás el resumen en tu correo. Te avisaremos cuando tu pedido esté listo.
-        </p>
+      <q-card v-if="createdOrder" flat bordered class="q-pa-lg">
+        <div class="success-grid">
+          <div class="success-main">
+            <q-icon name="check_circle" color="positive" size="58px" />
+            <h1 class="title-lg q-mt-md">Pedido confirmado</h1>
+            <p class="text-body2 text-grey-7">
+              Recibirás el resumen en tu correo. Te avisaremos cuando tu pedido esté listo.
+            </p>
 
-        <div class="soft-card q-pa-lg q-my-lg" style="max-width: 520px; margin-inline: auto">
-          <div class="text-caption text-grey-7">Código del pedido</div>
-          <div class="text-h4 text-weight-bold" style="letter-spacing: 0.06em">
-            {{ createdOrder.code }}
-          </div>
-          <q-separator class="q-my-md" />
-          <div class="row justify-between text-body2 q-mb-xs">
-            <span class="text-grey-7">Productos</span>
-            <strong>{{ formatCurrency(createdOrder.subtotal || createdOrder.total) }}</strong>
-          </div>
-          <div class="row justify-between text-body2 q-mb-xs">
-            <span class="text-grey-7">Envío</span>
-            <strong>
-              {{ createdOrder.shipping?.cost ? formatCurrency(createdOrder.shipping.cost) : 'Gratis' }}
-            </strong>
-          </div>
-          <div class="row justify-between text-body2">
-            <span class="text-grey-7">Total</span>
-            <strong class="text-h6">{{ formatCurrency(createdOrder.total) }}</strong>
-          </div>
-          <q-separator class="q-my-md" />
-          <div class="text-caption text-grey-7">
-            {{ paymentLabel }} ·
-            {{ createdOrder.shipping?.address || 'Retiro en el local' }}
-          </div>
-        </div>
+            <div class="soft-card q-pa-lg q-my-lg">
+              <div class="text-caption text-grey-7">Código del pedido</div>
+              <div class="text-h4 text-weight-bold" style="letter-spacing: 0.06em">
+                {{ createdOrder.code }}
+              </div>
+              <q-separator class="q-my-md" />
+              <div class="text-caption text-grey-7">
+                {{ paymentLabel }} ·
+                {{ createdOrder.shipping?.address || 'Retiro en el local' }}
+              </div>
+            </div>
 
-        <div class="inline-actions justify-center">
-          <q-btn
-            unelevated
-            no-caps
-            color="primary"
-            icon="receipt_long"
-            label="Ver mi pedido"
-            :to="{ name: 'account-order-detail', params: { code: createdOrder.code } }"
-          />
-          <q-btn outline no-caps color="primary" icon="storefront" label="Seguir comprando" to="/productos" />
+            <div class="inline-actions">
+              <q-btn
+                unelevated
+                no-caps
+                color="primary"
+                icon="receipt_long"
+                label="Ver mi pedido"
+                :to="{ name: 'account-order-detail', params: { code: createdOrder.code } }"
+              />
+              <q-btn outline no-caps color="primary" icon="storefront" label="Seguir comprando" to="/productos" />
+            </div>
+          </div>
+
+          <div class="success-side">
+            <div class="text-subtitle1 text-weight-bold q-mb-md">Resumen</div>
+            <div class="summary-row">
+              <span>Productos</span>
+              <strong>{{ formatCurrency(createdOrder.subtotal || createdOrder.total) }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>Envío</span>
+              <strong>
+                {{ createdOrder.shipping?.cost ? formatCurrency(createdOrder.shipping.cost) : 'Gratis' }}
+              </strong>
+            </div>
+            <div class="summary-row">
+              <span>Entrega</span>
+              <strong>
+                {{ createdOrder.shipping?.city || 'Retiro en el local' }}
+              </strong>
+            </div>
+            <q-separator class="q-my-md" />
+            <div class="summary-row summary-total">
+              <span>Total</span>
+              <strong class="text-h6">{{ formatCurrency(createdOrder.total) }}</strong>
+            </div>
+
+            <q-banner class="bg-blue-1 text-primary q-mt-lg" rounded dense>
+              <template #avatar><q-icon name="mail" /></template>
+              El resumen también llegó a tu correo.
+            </q-banner>
+          </div>
         </div>
       </q-card>
 
@@ -285,6 +308,10 @@ useSeo({
           <q-skeleton height="60px" style="border-radius: 14px" />
         </div>
 
+        <div class="checkout-step-caption text-caption text-grey-7">
+          Paso {{ step }} de 4 · {{ stepTitles[step] }}
+        </div>
+
         <q-stepper
           v-model="step"
           flat
@@ -299,7 +326,7 @@ useSeo({
             <div class="checkout-grid">
               <div class="stack">
                 <q-card v-for="item in items" :key="item.productId" flat bordered>
-                  <q-card-section class="row q-gutter-md no-wrap">
+                  <q-card-section class="row no-wrap checkout-item">
                     <router-link :to="{ name: 'product', params: { slug: item.slug } }">
                       <img :src="imageOf(item)" :alt="item.name" class="checkout-thumb" />
                     </router-link>
@@ -321,7 +348,7 @@ useSeo({
                         {{ item.description }}
                       </div>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right checkout-item-side">
                       <div class="text-weight-bold">{{ formatCurrency(item.price * item.quantity) }}</div>
                       <q-btn
                         flat

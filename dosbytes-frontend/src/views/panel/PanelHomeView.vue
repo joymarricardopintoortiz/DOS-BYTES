@@ -268,13 +268,16 @@ useSeo({
           <q-card flat bordered class="fit">
             <q-card-section>
               <div class="text-subtitle1 text-weight-bold q-mb-md">Accesos rápidos</div>
-              <div class="row q-col-gutter-sm">
-                <div v-for="link in quickLinks" :key="link.to" class="col-12 col-sm-6">
-                  <router-link :to="link.to" class="surface-card q-pa-sm row items-center q-gutter-sm">
-                    <q-icon :name="link.icon" color="secondary" size="22px" />
-                    <span class="text-body2 text-weight-bold">{{ link.label }}</span>
-                  </router-link>
-                </div>
+              <div class="panel-quicklinks">
+                <router-link
+                  v-for="link in quickLinks"
+                  :key="link.to"
+                  :to="link.to"
+                  class="surface-card panel-quicklink"
+                >
+                  <q-icon :name="link.icon" color="secondary" size="22px" />
+                  <span class="text-body2 text-weight-bold">{{ link.label }}</span>
+                </router-link>
               </div>
             </q-card-section>
           </q-card>

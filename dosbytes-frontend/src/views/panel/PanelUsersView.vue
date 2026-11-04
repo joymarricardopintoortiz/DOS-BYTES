@@ -52,7 +52,7 @@ const editableRoleOptions = [
 ]
 
 const columns = [
-  { name: 'user', label: 'Usuario', field: 'name', align: 'left' },
+  { name: 'user', label: 'Usuarios', field: 'name', align: 'left', headerClasses: 'users-col-head' },
   { name: 'role', label: 'Rol', field: 'role', align: 'left' },
   { name: 'status', label: 'Estado', field: 'active', align: 'left' },
   { name: 'createdAt', label: 'Registro', field: 'createdAt', align: 'left' },
@@ -378,15 +378,15 @@ useSeo({ title: 'Usuarios' })
               <q-avatar size="38px" color="primary" text-color="white">
                 {{ (props.row.name || '?').slice(0, 2).toUpperCase() }}
               </q-avatar>
-              <div style="min-width: 0">
-                <div class="text-weight-bold">
+              <div class="user-cell-body">
+                <div class="user-cell-name text-weight-bold">
                   {{ props.row.name }}
                   <q-badge v-if="isSelf(props.row)" color="secondary" text-color="primary" class="q-ml-xs">
                     Tú
                   </q-badge>
                 </div>
-                <div class="text-caption text-grey-7">{{ props.row.email }}</div>
-                <div v-if="props.row.phone" class="text-caption text-grey-7">
+                <div class="user-cell-email text-caption text-grey-7">{{ props.row.email }}</div>
+                <div v-if="props.row.phone" class="user-cell-email text-caption text-grey-7">
                   {{ props.row.phone }}
                 </div>
               </div>

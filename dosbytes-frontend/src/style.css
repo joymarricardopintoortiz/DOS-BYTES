@@ -1238,6 +1238,30 @@ img {
   align-items: center;
 }
 
+/* Línea de producto del checkout: thumb + datos + (precio/Quitar).
+   Con flex-wrap la fila se reordena sola en pantallas angostas. */
+.checkout-item {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.checkout-item .col {
+  flex: 1 1 150px;
+  min-width: 0;
+}
+
+.checkout-item-side {
+  margin-left: auto;
+}
+
+/* Paso actual en móvil (los títulos del stepper se ocultan a ≤480px) */
+.checkout-step-caption {
+  display: none;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
 /* Métodos de pago como tarjetas seleccionables */
 .pay-options {
   display: grid;
@@ -1286,6 +1310,34 @@ img {
 }
 
 /* Línea de resumen de la página (mismo criterio que el carrito) */
+.success-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+  gap: 24px;
+  align-items: start;
+}
+
+.success-main {
+  text-align: center;
+}
+
+.success-main .inline-actions {
+  justify-content: center;
+}
+
+.success-side {
+  background: var(--db-surface);
+  border: 1px solid var(--db-line);
+  border-radius: var(--db-radius);
+  padding: 20px;
+}
+
+@media (max-width: 900px) {
+  .success-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 900px) {
   .checkout-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -1395,6 +1447,62 @@ img {
 
 .account-content {
   min-width: 0;
+}
+
+/* Accesos rápidos de Mi cuenta: tarjetas con icono + texto en una fila.
+   Antes usaban utilidades de Quasar (row/q-gutter/fit) que a 300px
+   deformaban el primer ítem (se quedaba sin icono y desalineado). */
+.quicklinks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.quicklink-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 100%;
+  padding: 15px;
+}
+
+.quicklink-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.quicklink-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quicklink-card .stat-icon {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+}
+
+/* Accesos rápidos del panel: separación real entre tarjetas (el gutter de
+   Quasar se anulaba con los márgenes y quedaban pegadas). */
+.panel-quicklinks {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.panel-quicklink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+@media (min-width: 600px) {
+  .panel-quicklinks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .panel-layout {
@@ -1891,6 +1999,46 @@ img {
 .q-table th {
   color: #42566e;
   font-weight: 800;
+}
+
+/* Encabezado de la columna de usuarios: letra más pequeña */
+.q-table th.users-col-head {
+  font-size: 0.7rem;
+  letter-spacing: 0.01em;
+}
+
+/* Celda de usuario (avatar + nombre/correo): el texto siempre cabe dentro
+   de la celda, achicando la letra y sin desbordar el borde. */
+.q-table .user-cell-body {
+  min-width: 0;
+}
+
+.q-table .user-cell-name {
+  font-size: 0.9rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.q-table .user-cell-email {
+  font-size: 0.72rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .q-table .user-cell-name {
+    font-size: 0.78rem;
+  }
+
+  .q-table .user-cell-email {
+    font-size: 0.66rem;
+  }
+
+  .q-table .q-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
 }
 
 .q-table tbody td {
@@ -2795,5 +2943,170 @@ img {
 
   .footer-bottom {
     font-size: 0.7rem;
+  }
+}
+
+/* ==========================================================================
+   AJUSTES MÓVILES (corrección de deformaciones en pantallas angostas)
+   ========================================================================== */
+
+/* Header: la marca se encoge con elipsis y las acciones NUNCA se comprimen. */
+.header-main .brand {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.brand-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-actions {
+  flex-shrink: 0;
+}
+
+/* Botón de usuario: ancho según su contenido. Antes las reglas de 420px le
+   fijaban 36px y el avatar se colapsaba en una barra "|". */
+.header-actions .q-btn.header-user-btn {
+  width: auto !important;
+  min-width: 40px;
+  padding: 0 6px;
+}
+
+.header-user-btn .q-btn__content {
+  overflow: visible;
+}
+
+.header-user-btn .q-avatar {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 420px) {
+  /* Marca + botones caben en UNA sola fila: espaciado mínimo, botones de
+     32px y sin flechas del menú de usuario (solo queda el avatar). */
+  .header-main {
+    gap: 6px;
+  }
+
+  .header-actions .q-btn {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+  }
+
+  .header-actions .q-btn.header-user-btn {
+    width: auto !important;
+    min-width: 36px;
+    height: 32px;
+    padding: 0 4px;
+  }
+
+  /* Flechas del dropdown (las del slot y la propia de QBtnDropdown) */
+  .header-user-btn .q-btn__content > .q-icon {
+    display: none;
+  }
+
+  .brand {
+    gap: 6px;
+  }
+
+  .brand-mark {
+    width: 30px;
+    height: 30px;
+  }
+
+  .brand-name {
+    font-size: 0.95rem;
+  }
+}
+
+/* Mi cuenta: tarjetas de acceso compactas a pantallas angostas.
+   (La regla que anulaba el padding del gutter se quitó: también movía los
+   campos de "Datos personales" fuera de su alineación con el título.) */
+@media (max-width: 600px) {
+  .quicklinks {
+    gap: 10px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .quicklink-card {
+    gap: 12px;
+    padding: 13px;
+  }
+
+  .quicklink-card .stat-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 1.15rem;
+  }
+}
+
+/* Datos personales (Mi cuenta): campos apilados, con aire parejo y botón
+   a ancho completo en móvil. */
+@media (max-width: 600px) {
+  .profile-form .row.q-col-gutter-md {
+    margin: 0;
+    row-gap: 14px;
+  }
+
+  .profile-form .row.q-col-gutter-md > [class*='col-'] {
+    padding: 0;
+  }
+
+  .profile-form .row.justify-end .q-btn {
+    width: 100%;
+  }
+}
+
+/* Checkout en pantallas angostas: stepper compacto (solo círculos, con el
+   paso actual en la etiqueta superior) y línea de producto en dos filas
+   (foto + datos arriba, Quitar + total abajo, sin pisarse). */
+@media (max-width: 480px) {
+  .checkout-step-caption {
+    display: block;
+  }
+
+  .checkout-stepper .q-stepper__title {
+    display: none;
+  }
+
+  .checkout-stepper .q-stepper__tab {
+    min-width: 0;
+    padding: 8px 2px;
+  }
+
+  .checkout-stepper .q-stepper__dot {
+    width: 26px;
+    height: 26px;
+    font-size: 0.72rem;
+  }
+
+  .checkout-item {
+    gap: 10px;
+  }
+
+  .checkout-item .checkout-thumb {
+    width: 64px;
+    height: 64px;
+  }
+
+  .checkout-item .col {
+    flex: 1 1 calc(100% - 74px);
+  }
+
+  .checkout-item-side {
+    width: 100%;
+    margin-left: 0;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .checkout-item-side .q-btn {
+    margin-top: 0;
   }
 }
