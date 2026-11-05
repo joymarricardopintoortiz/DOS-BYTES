@@ -46,6 +46,17 @@ const activeOptions = [
   { label: 'Inactivos', value: 'false' },
 ]
 
+// En pantallas angostas (≤480px) la tabla no cabe con sus 5 columnas:
+// se muestran solo "Usuario" y "Acciones", y el rol/estado aparecen dentro
+// de la ficha del usuario (ver .user-cell-meta) para no perder la info.
+const narrowMq = typeof window !== 'undefined' ? window.matchMedia('(max-width: 480px)') : null
+const isNarrow = ref(narrowMq ? narrowMq.matches : false)
+narrowMq?.addEventListener('change', (event) => {
+  isNarrow.value = event.matches
+})
+
+const visibleColumns = computed(() => (isNarrow.value ? ['user', 'actions'] : undefined))
+
 const editableRoleOptions = [
   { label: ROLES.customer, value: 'customer' },
   { label: ROLES.employee, value: 'employee' },
@@ -363,6 +374,8 @@ useSeo({ title: 'Usuarios' })
       <q-table
         :rows="users"
         :columns="columns"
+        :visible-columns="visibleColumns"
+        wrap-cells
         row-key="_id"
         :loading="loading"
         :pagination="{ rowsPerPage: 0 }"
@@ -374,7 +387,7 @@ useSeo({ title: 'Usuarios' })
       >
         <template #body-cell-user="props">
           <q-td :props="props">
-            <div class="row items-center q-gutter-sm">
+            <div class="row items-center user-cell-row">
               <q-avatar size="38px" color="primary" text-color="white">
                 {{ (props.row.name || '?').slice(0, 2).toUpperCase() }}
               </q-avatar>
@@ -388,6 +401,23 @@ useSeo({ title: 'Usuarios' })
                 <div class="user-cell-email text-caption text-grey-7">{{ props.row.email }}</div>
                 <div v-if="props.row.phone" class="user-cell-email text-caption text-grey-7">
                   {{ props.row.phone }}
+                </div>
+                <div class="user-cell-meta">
+                  <q-badge
+                    :color="
+                      props.row.role === 'admin'
+                        ? 'primary'
+                        : props.row.role === 'employee'
+                          ? 'secondary'
+                          : 'grey-6'
+                    "
+                    :text-color="props.row.role === 'employee' ? 'primary' : 'white'"
+                  >
+                    {{ roleLabel(props.row.role) }}
+                  </q-badge>
+                  <span class="text-caption" :class="props.row.active ? 'text-positive' : 'text-grey-6'">
+                    {{ props.row.active ? 'Activa' : 'Inactiva' }}
+                  </span>
                 </div>
               </div>
             </div>

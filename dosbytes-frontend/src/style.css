@@ -2009,6 +2009,10 @@ img {
 
 /* Celda de usuario (avatar + nombre/correo): el texto siempre cabe dentro
    de la celda, achicando la letra y sin desbordar el borde. */
+.q-table .user-cell-row {
+  gap: 10px;
+}
+
 .q-table .user-cell-body {
   min-width: 0;
 }
@@ -2023,6 +2027,22 @@ img {
   font-size: 0.72rem;
   line-height: 1.3;
   overflow-wrap: anywhere;
+}
+
+/* Rol + estado dentro de la ficha: solo visible en móvil (≤480px), donde
+   las columnas Rol/Estado/Registro se ocultan para que la tabla quepa. */
+.q-table .user-cell-meta {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .q-table .user-cell-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -2950,10 +2970,14 @@ img {
    AJUSTES MÓVILES (corrección de deformaciones en pantallas angostas)
    ========================================================================== */
 
-/* Header: la marca se encoge con elipsis y las acciones NUNCA se comprimen. */
-.header-main .brand {
-  flex: 1 1 auto;
-  min-width: 0;
+/* Header: la marca se encoge con elipsis y las acciones NUNCA se comprimen.
+   SOLO en móvil: en escritorio la marca no debe crecer (flex-grow abre un
+   hueco grande entre el logo y el buscador y lo acorta). */
+@media (max-width: 768px) {
+  .header-main .brand {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 }
 
 .brand-name {
@@ -3108,5 +3132,81 @@ img {
 
   .checkout-item-side .q-btn {
     margin-top: 0;
+  }
+}
+
+/* Tabla de usuarios en móvil: celdas y botones de acción más pequeños para
+   que la columna de acciones (editar/desactivar) quepa completa en 300px. */
+@media (max-width: 480px) {
+  /* Ancho fijo: la tabla NUNCA puede pasar de la caja (sin scroll lateral).
+     OJO: el <table> es el que lleva la clase "q-table" (no su contenedor),
+     por eso el selector es .q-table y no .q-table table. */
+  .q-table {
+    table-layout: fixed;
+    width: 100%;
+    white-space: normal;
+  }
+
+  /* Las celdas SIEMPRE pueden partir el texto (Quasar trae nowrap por
+     defecto con q-table--no-wrap, que era lo que impedía cualquier cambio) */
+  .q-table th,
+  .q-table td {
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .q-table th:nth-child(1),
+  .q-table td:nth-child(1) {
+    width: calc(100% - 74px);
+  }
+
+  .q-table th:nth-child(2),
+  .q-table td:nth-child(2) {
+    width: 74px;
+  }
+
+  .q-table th,
+  .q-table td {
+    padding: 6px 7px;
+  }
+
+  /* Correos largos: se parten donde haga falta y nunca desbordan la caja */
+  .q-table .user-cell-email {
+    font-size: 0.66rem;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+    overflow: hidden;
+  }
+
+  .q-table .user-cell-name {
+    font-size: 0.78rem;
+    overflow-wrap: anywhere;
+    overflow: hidden;
+  }
+
+  .q-table .user-cell-row {
+    gap: 7px;
+  }
+
+  .q-table .q-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.72rem;
+  }
+
+  .q-table .inline-actions {
+    gap: 2px;
+    justify-content: flex-end;
+  }
+
+  .q-table .inline-actions .q-btn {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    min-height: 26px;
+  }
+
+  .q-table .inline-actions .q-btn .q-icon {
+    font-size: 17px;
   }
 }
