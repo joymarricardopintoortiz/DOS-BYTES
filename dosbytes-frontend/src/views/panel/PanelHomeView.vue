@@ -19,11 +19,20 @@ const newOrders = ref(0)
 
 const statusRows = computed(() => {
   const rows = stats.value?.serviceOrdersByStatus || []
-  const max = Math.max(1, ...rows.map((row) => row.count))
-  return rows.map((row) => ({
+  const counts = Object.fromEntries(
+    rows.map((row) => [row.status, Number(row.count) || 0])
+  )
+  // Siempre los 7 estados del flujo, aunque estén en 0: el panel es el
+  // desglose completo (si crece, la lista hace scroll dentro de la tarjeta).
+  const all = Object.keys(SERVICE_ORDER_STATUS).map((status) => ({
+    status,
+    count: counts[status] || 0,
+  }))
+  const max = Math.max(1, ...all.map((row) => row.count))
+  return all.map((row) => ({
     ...row,
-    label: SERVICE_ORDER_STATUS[row.status]?.label || row.status,
-    color: SERVICE_ORDER_STATUS[row.status]?.color || 'grey',
+    label: SERVICE_ORDER_STATUS[row.status].label,
+    color: SERVICE_ORDER_STATUS[row.status].color,
     percent: (row.count / max) * 100,
   }))
 })
@@ -233,16 +242,16 @@ useSeo({
         />
       </div>
 
-      <div class="row q-col-gutter-lg q-mt-lg">
+      <div class="row q-col-gutter-lg q-mt-lg panel-two-cols">
         <div class="col-12 col-md-6">
-          <q-card flat bordered class="fit">
+          <q-card flat bordered class="fit panel-status-card">
             <q-card-section>
               <div class="row items-center justify-between q-mb-md">
                 <div class="text-subtitle1 text-weight-bold">Órdenes por estado</div>
                 <q-btn flat dense no-caps color="primary" label="Ver todas" to="/panel/ordenes" />
               </div>
 
-              <div v-if="statusRows.length" class="stack">
+              <div v-if="statusRows.length" class="stack status-list">
                 <div v-for="row in statusRows" :key="row.status">
                   <div class="row items-center justify-between q-mb-xs">
                     <StatusBadge :status="row.status" />

@@ -1486,6 +1486,38 @@ img {
 
 /* Accesos rápidos del panel: separación real entre tarjetas (el gutter de
    Quasar se anulaba con los márgenes y quedaban pegadas). */
+.panel-two-cols > [class*='col-'] {
+  align-self: stretch; /* ambas tarjetas, igual de estatura */
+}
+
+/* "Órdenes por estado": la tarjeta ocupa toda la altura de la fila (la de
+   "Accesos rápidos" manda) y la lista se reparte dentro; si hay más estados
+   de los que caben, la lista hace scroll sin agrandar la tarjeta. */
+.panel-status-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-status-card .q-card__section {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.status-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  gap: 10px;
+}
+
+.status-list > * {
+  margin-block: auto; /* reparte el aire: llena la tarjeta si la lista es corta */
+}
+
 .panel-quicklinks {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
