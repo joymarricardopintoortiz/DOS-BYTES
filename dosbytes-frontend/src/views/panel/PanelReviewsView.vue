@@ -65,9 +65,15 @@ function applyFilters() {
   router.push({ name: 'panel-reviews', query })
 }
 
-function clearFilters() {
+async function clearFilters() {
   filters.value = { visible: '', rating: '' }
-  router.push({ name: 'panel-reviews', query: {} })
+  try {
+    await router.push({ name: 'panel-reviews', query: {} })
+  } catch {
+    /* navegación cancelada: igual recargamos abajo */
+  }
+  // Recarga explícita: la lista se limpia siempre
+  load()
 }
 
 function changePage(page) {

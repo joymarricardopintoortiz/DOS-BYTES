@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { copyToClipboard } from 'quasar'
 import { usersApi } from '../../api/client'
@@ -126,9 +126,15 @@ function applyFilters() {
   router.push({ name: 'panel-users', query })
 }
 
-function clearFilters() {
+async function clearFilters() {
   filters.value = { q: '', role: '', active: '' }
-  router.push({ name: 'panel-users', query: {} })
+  try {
+    await router.push({ name: 'panel-users', query: {} })
+  } catch {
+    /* navegación cancelada: igual recargamos abajo */
+  }
+  // Recarga explícita: la lista se limpia siempre (aunque la URL ya estuviera sin filtros)
+  load()
 }
 
 function changePage(page) {
@@ -286,10 +292,17 @@ async function copyPassword() {
   }
 }
 
-onMounted(() => {
-  load()
-  loadStats()
-})
+// Al cambiar la URL (Aplicar, Limpiar, paginación) se recarga la lista
+watch(
+  () => route.query,
+  () => {
+    filtersFromRoute()
+    load()
+  },
+  { immediate: true }
+)
+
+onMounted(loadStats)
 
 useSeo({ title: 'Usuarios' })
 </script>

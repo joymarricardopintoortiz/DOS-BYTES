@@ -118,9 +118,15 @@ function applyFilters() {
   router.push({ name: 'panel-products', query })
 }
 
-function clearFilters() {
+async function clearFilters() {
   filters.value = { q: '', category: '', visible: '' }
-  router.push({ name: 'panel-products', query: {} })
+  try {
+    await router.push({ name: 'panel-products', query: {} })
+  } catch {
+    /* navegación cancelada: igual recargamos abajo */
+  }
+  // Recarga explícita: la lista se limpia siempre
+  load()
 }
 
 function changePage(page) {

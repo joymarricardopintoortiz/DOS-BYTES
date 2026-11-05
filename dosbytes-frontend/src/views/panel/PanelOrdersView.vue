@@ -92,9 +92,15 @@ function applyFilters() {
   router.push({ name: 'panel-orders', query })
 }
 
-function clearFilters() {
+async function clearFilters() {
   filters.value = { q: '', status: '' }
-  router.push({ name: 'panel-orders', query: {} })
+  try {
+    await router.push({ name: 'panel-orders', query: {} })
+  } catch {
+    /* navegación cancelada: igual recargamos abajo */
+  }
+  // Recarga explícita: la lista se limpia siempre
+  load()
 }
 
 function changePage(page) {
