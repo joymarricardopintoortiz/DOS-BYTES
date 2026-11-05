@@ -3202,28 +3202,47 @@ img {
     padding: 6px 7px;
   }
 
-  /* Correos largos: se parten donde haga falta y nunca desbordan la caja */
+  /* Ficha de usuario apilada: el círculo arriba y debajo nombre, correo,
+     teléfono y el tipo de usuario; letra más grande para que se note. */
+  .q-table .user-cell-row {
+    flex-direction: column;
+    align-items: stretch; /* texto a todo el ancho de la celda */
+    gap: 6px;
+  }
+
   .q-table .user-cell-email {
-    font-size: 0.66rem;
+    font-size: 0.8rem;
+    line-height: 1.35;
     overflow-wrap: anywhere;
     word-break: break-all;
     overflow: hidden;
   }
 
   .q-table .user-cell-name {
-    font-size: 0.78rem;
+    font-size: 0.95rem;
+    line-height: 1.3;
     overflow-wrap: anywhere;
     overflow: hidden;
   }
 
-  .q-table .user-cell-row {
-    gap: 7px;
+  .q-table .q-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
   }
 
-  .q-table .q-avatar {
-    width: 28px;
-    height: 28px;
-    font-size: 0.72rem;
+  .q-table .user-cell-meta {
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .q-table .user-cell-meta .q-badge {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+
+  .q-table td:nth-child(2) {
+    vertical-align: middle; /* los botones, centrados junto a la ficha */
   }
 
   .q-table .inline-actions {
